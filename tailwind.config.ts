@@ -10,6 +10,15 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			messageContainer:{
+				DEFAULT: 'var(--message-container)',
+			},
+			color:{
+				DEFAULT: 'var(--text-primary)',
+				secondary: 'var(--text-secondary)',
+				light: 'var(--text-light)',
+			},
+		    light:'var(--light)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
