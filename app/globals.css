@@ -60,7 +60,7 @@
     --message-container: rgb(255, 255, 255);
   }
   .dark {
-    --background: 0 0% 0%;
+    --background: 0, 0%, 5%;
 
     --foreground: 0 0% 98%;
 
@@ -111,7 +111,7 @@
     --light: rgb(255, 255, 255, 0.1);
     --text-primary: #fff;
     --text-secondary: #b4b4b4;
-    --message-container: rgb(48, 48, 48);
+    --message-container: #1f1f1f;
   }
 }
 
