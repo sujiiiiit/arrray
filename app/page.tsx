@@ -245,8 +245,8 @@ const App = () => {
                         <div className="min-w-9">
                           <span className="" data-state="closed">
                             <button
-                              className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-colors focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                              disabled
+                              className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
+                              disabled={!hasContent}
                             >
                               <div className="flex items-center justify-center">
                                 <svg
