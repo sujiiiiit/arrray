@@ -10,11 +10,13 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			dropdown: "var(--dropdown)",
 			messageContainer:{
 				DEFAULT: 'var(--message-container)',
 			},
 			color:{
 				DEFAULT: 'var(--text-primary)',
+				primary: 'var(--text-primary)',
 				secondary: 'var(--text-secondary)',
 				light: 'var(--text-light)',
 			},
@@ -64,7 +66,8 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+		headerHeight: 'var(--header-height)'
   	}
   },
   plugins: [require("tailwindcss-animate")],

@@ -58,6 +58,11 @@
     --text-primary: #000;
     --text-secondary: #00000099;
     --message-container: rgb(255, 255, 255);
+    --header-height:3rem;
+    --dropdown: rgb(255, 255, 255, 0.78);
+    --dropdown-backdrop: 50px;
+
+
   }
   .dark {
     --background: 0, 0%, 5%;
@@ -112,6 +117,8 @@
     --text-primary: #fff;
     --text-secondary: #b4b4b4;
     --message-container: #1f1f1f;
+    --dropdown: rgb(33, 33, 33, 0.4);
+
   }
 }
 
