@@ -1,4 +1,4 @@
-const MessageContainer = () => {
+const Attachments = () => {
   return (
     <>
       <div className="-ml-1.5 flex flex-nowrap gap-2 overflow-x-auto p-1.5">
@@ -98,4 +98,4 @@ const MessageContainer = () => {
   );
 };
 
-export default MessageContainer;
+export default Attachments;

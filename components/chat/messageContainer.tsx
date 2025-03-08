@@ -13,7 +13,7 @@ import {
 import { toggleDialog } from "@/store/dialogSlice";
 import { useContentEditable } from "@/hooks/useContentEditable";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-
+import FindProjects from "./find-projects";
 const MessageContainer = () => {
   const { contentEditableRef, hasContent } = useContentEditable();
   const dispatch = useAppDispatch();
@@ -24,12 +24,12 @@ const MessageContainer = () => {
         <form className="w-full">
           <div className="relative z-[1] flex h-full max-w-full flex-1 flex-col">
             <div className="group relative z-[1] flex w-full items-center">
-              <div className="w-full">
+              <div className="w-full p-3">
                 <div
                   id="composer-background"
-                  className="flex w-full cursor-text flex-col rounded-3xl  px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow]  dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0"
+                  className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl  px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow]  dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"
                 >
-                  {/* <Attachments /> */}
+                  <Attachments />
 
                   <div className="flex flex-col justify-start">
                     <div className="flex min-h-[44px] items-start pl-1">
@@ -63,7 +63,7 @@ const MessageContainer = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="mb-2 mt-1 flex items-center justify-between sm:mt-5">
+                  <div className="mb-2 mt-1 flex items-center justify-between sm:mt-5 gap-x-1.5">
                     <div className="flex gap-x-1.5 ">
                       <div>
                         <div className="relative">
@@ -80,7 +80,6 @@ const MessageContainer = () => {
                                           viewBox="0 0 24 24"
                                           fill="none"
                                           xmlns="http://www.w3.org/2000/svg"
-                                          aria-label=""
                                           className="h-[18px] w-[18px]"
                                         >
                                           <path
@@ -203,8 +202,10 @@ const MessageContainer = () => {
                           <p>Search from internet </p>
                         </TooltipContent>
                       </Tooltip>
+                      <FindProjects/>
+                      
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 ">
                       <div className="sm:flex hidden font-mono justify-start items-center text-xs gap-2 text-color-secondary select-none">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

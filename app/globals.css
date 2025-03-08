@@ -61,7 +61,8 @@
     --header-height:3rem;
     --dropdown: rgb(255, 255, 255, 0.78);
     --dropdown-backdrop: 50px;
-
+    --layer-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --tabs-transition: 0.2s ease-in-out;
 
   }
   .dark {
@@ -134,6 +135,15 @@
   }
   .icon-xs {
     @apply stroke-[1.5] flex-shrink-0 h-3 w-3;
+  }
+  .custom-ease {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.58, 1);
+  }
+  .layer-transition {
+    @apply transition-all duration-200 custom-ease;
+  }
+  .header-height{
+    @apply h-12 sm:h-14
   }
 }
 
