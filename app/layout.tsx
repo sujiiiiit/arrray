@@ -9,6 +9,7 @@ import { SidebarProvider } from "@/contexts/sidebar-context";
 import { SidebarWithContext } from "@/components/sidebar/sidebar";
 import LazySidebarContent from "@/components/lazyLoad/lazyloadSidebarContent";
 import { AuthProvider } from "@/contexts/auth-context";
+import Header from "@/components/header/header";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${GeistSans.className} ${GeistMono.variable} antialiased`}>
+      <body
+        className={`${GeistSans.className} ${GeistMono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -36,7 +39,10 @@ export default function RootLayout({
                   <SidebarWithContext>
                     <LazySidebarContent />
                   </SidebarWithContext>
-                  {children}
+                  <div className="h-dvh w-dvw overflow-hidden max-w-screen-2xl m-auto">
+                    <Header />
+                    {children}
+                  </div>
                 </SidebarProvider>
               </TooltipProvider>
             </AuthProvider>

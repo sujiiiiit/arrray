@@ -1,3 +1,4 @@
+"use client"
 import SidebarToggle from "@/components/sidebar/toggle-button";
 import Link from "next/link";
 import { ModeToggle } from "@/components/ModeToggle";
