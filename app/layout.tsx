@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/contexts/sidebar-context";
 import { SidebarWithContext } from "@/components/sidebar/sidebar";
 import LazySidebarContent from "@/components/lazyLoad/lazyloadSidebarContent";
+import { AuthProvider } from "@/contexts/auth-context";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,14 +30,16 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <TooltipProvider delayDuration={500} skipDelayDuration={500}>
-              <SidebarProvider>
-                <SidebarWithContext>
-                  <LazySidebarContent />
-                </SidebarWithContext>
-                {children}
-              </SidebarProvider>
-            </TooltipProvider>
+            <AuthProvider>
+              <TooltipProvider delayDuration={500} skipDelayDuration={500}>
+                <SidebarProvider>
+                  <SidebarWithContext>
+                    <LazySidebarContent />
+                  </SidebarWithContext>
+                  {children}
+                </SidebarProvider>
+              </TooltipProvider>
+            </AuthProvider>
           </Providers>
         </ThemeProvider>
       </body>

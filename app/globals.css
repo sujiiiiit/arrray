@@ -94,9 +94,9 @@
 
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 360, 100%, 67%;
 
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 360, 100%, 67%, 0.08;
 
     --border: 0 0% 14.9%;
 
@@ -144,6 +144,12 @@
   }
   .header-height{
     @apply h-12 sm:h-14
+  }
+  .danger{
+    @apply text-destructive ;
+  }
+  .danger-bg{
+    @apply bg-destructive-foreground ;
   }
 }
 

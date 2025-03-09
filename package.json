@@ -43,12 +43,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@supabase/ssr": "^0.5.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8.5.3",
+    "supabase": "^2.15.8",
     "typescript": "^5"
   }
 }

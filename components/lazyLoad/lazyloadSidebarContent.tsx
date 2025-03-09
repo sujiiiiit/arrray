@@ -2,7 +2,7 @@
 // LazySidebarContent.tsx
 import dynamic from "next/dynamic";
 import { useInView } from "react-intersection-observer";
-import Loading from "@/components/ui/loading";
+import {Spinner} from "@/components/ui/loading";
 // Dynamically import the SidebarContent component without server-side rendering.
 const SidebarContent = dynamic(
   () =>
@@ -16,7 +16,7 @@ const LazySidebarContent = () => {
     threshold: 0.1, // Adjust threshold as needed
   });
 
-  return <div ref={ref}>{inView ? <SidebarContent /> : <Loading/>}</div>;
+  return <div ref={ref}>{inView ? <SidebarContent /> : <Spinner/>}</div>;
 };
 
 export default LazySidebarContent;
