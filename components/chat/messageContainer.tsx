@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleDialog } from "@/store/dialogSlice";
 import { useContentEditable } from "@/hooks/useContentEditable";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { useAppDispatch } from "@/hooks/redux";
 import FindProjects from "./find-projects";
 const MessageContainer = () => {
   const { contentEditableRef, hasContent } = useContentEditable();

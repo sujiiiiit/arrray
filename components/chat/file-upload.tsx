@@ -5,8 +5,7 @@ import type React from "react";
 import { useRef } from "react";
 
 import { useState, useCallback, useEffect } from "react";
-import { Upload } from "lucide-react";
-
+import Image from "next/image";
 interface FileUploadProps {
   onFilesDrop?: (files: File[]) => void;
   maxFiles?: number;
@@ -154,7 +153,7 @@ export default function FileUpload({
     >
       <div className="bg-transparent">
         <div className="flex flex-col items-center justify-center gap-4">
-          <img src="/upload-assets.svg" alt="upload" className="w-48" />
+          <Image src="/upload-assets.svg" alt="upload" className="w-48" />
           <div className="flex flex-col gap-3 w-full justify-center text-center">
             <h3 className="text-2xl font-medium">Add anything</h3>
             <p className="text-base  text-muted-foreground">
