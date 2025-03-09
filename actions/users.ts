@@ -8,7 +8,7 @@ export const loginAction = async (provider: Provider) => {
     const { data, error } = await (await getSupabaseAuth()).signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`,
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth`,
       },
     });
 
