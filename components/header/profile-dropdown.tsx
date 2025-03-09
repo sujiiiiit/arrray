@@ -16,7 +16,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 
 function ProfileDropdown() {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, signOut,getUserAvatar,getUserName ,getFullName} = useAuth();
 
   const handleClickSignOutButton = async () => {
     await signOut();
@@ -35,8 +35,12 @@ function ProfileDropdown() {
               <DropdownMenuTrigger asChild>
                 <TooltipTrigger asChild>
                   <Avatar className="w-8 h-8 cursor-pointer">
-                    <AvatarImage src={user.avatar_url || "https://github.com/shadcn.png"} />
-                    <AvatarFallback>{user.full_name?.substring(0, 2) || "CN"}</AvatarFallback>
+                    <AvatarImage
+                      src={getUserAvatar() || "https://github.com/sujiiiiit.png"}
+                    />
+                    <AvatarFallback>
+                      {getFullName()?.substring(0, 2) || getUserName()?.substring(0, 2) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
               </DropdownMenuTrigger>
@@ -46,28 +50,33 @@ function ProfileDropdown() {
                 align="start"
                 alignOffset={-100}
               >
-                <DropdownMenuItem>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="h-[18px] w-[18px] shrink-0"
-                  >
-                    <path
+                <Link href={"/profile"}>
+                  <DropdownMenuItem>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
                       fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6.578 15.482c-1.415.842-5.125 2.562-2.865 4.715C4.816 21.248 6.045 22 7.59 22h8.818c1.546 0 2.775-.752 3.878-1.803c2.26-2.153-1.45-3.873-2.865-4.715a10.66 10.66 0 0 0-10.844 0M16.5 6.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0"
-                      color="currentColor"
-                    />
-                  </svg>
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleClickSignOutButton} className="danger focus:bg-destructive-foreground">
+                      className="h-[18px] w-[18px] shrink-0"
+                    >
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6.578 15.482c-1.415.842-5.125 2.562-2.865 4.715C4.816 21.248 6.045 22 7.59 22h8.818c1.546 0 2.775-.752 3.878-1.803c2.26-2.153-1.45-3.873-2.865-4.715a10.66 10.66 0 0 0-10.844 0M16.5 6.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0"
+                        color="currentColor"
+                      />
+                    </svg>
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem
+                  onClick={handleClickSignOutButton}
+                  className="danger focus:bg-destructive-foreground"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -92,7 +101,7 @@ function ProfileDropdown() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
               <TooltipContent>
-                <p>{user.full_name || user.username || "User"}</p>
+                <p>{getFullName() || getUserName() || "User"}</p>
               </TooltipContent>
             </Tooltip>
           </DropdownMenu>
@@ -100,9 +109,9 @@ function ProfileDropdown() {
       ) : (
         <>
           <Link href={"/login"} className="">
-          <Button variant={"default"} className="h-8 rounded-full">
-            Login
-          </Button>
+            <Button variant={"default"} className="h-8 rounded-full">
+              Login
+            </Button>
           </Link>
         </>
       )}
