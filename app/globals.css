@@ -151,6 +151,9 @@
   .danger-bg{
     @apply bg-destructive-foreground ;
   }
+  .icons{
+    @apply  h-[18px] w-[18px] shrink-0;
+  }
 }
 
 .space-y-1\.5 > :not([hidden]) ~ :not([hidden]){

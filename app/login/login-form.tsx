@@ -11,7 +11,7 @@ import {Spinner} from "@/components/ui/loading";
 export default function LoginForm({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+}: React.ComponentPropsWithoutRef<"div">) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -29,7 +29,7 @@ export default function LoginForm({
   };
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="grid gap-6">
         <Button
           variant="outline"
@@ -63,6 +63,6 @@ export default function LoginForm({
           </span>
         </div> */}
       </div>
-    </form>
+    </div>
   );
 }

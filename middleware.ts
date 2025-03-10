@@ -1,3 +1,4 @@
+'use server'
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -9,10 +10,13 @@ export async function middleware(request: NextRequest) {
   });
 
   const path = new URL(request.url).pathname;
-
   const user = await getUser(request, response);
-
-  if (path === "/protected-route" && !user) {
+  
+  // Define protected routes that require authentication
+  const protectedRoutes = ['/dashboard', '/profile', '/settings', '/protected-route'];
+  
+  // Check if current path requires authentication
+  if (protectedRoutes.some(route => path.startsWith(route)) && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

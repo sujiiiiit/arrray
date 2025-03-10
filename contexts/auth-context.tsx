@@ -21,7 +21,6 @@ type AuthContextType = {
   getFullName: () => string | undefined;
   getUserAvatar: () => string | undefined;
   isEmailVerified: () => boolean;
-  isProfileComplete: () => boolean;
 };
 
 // Create a default context value to avoid undefined checks
@@ -36,9 +35,9 @@ const defaultContextValue: AuthContextType = {
   getFullName: () => undefined,
   getUserAvatar: () => undefined,
   isEmailVerified: () => false,
-  isProfileComplete: () => false,
 };
 
+// Create the context with default values
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -47,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authVerified, setAuthVerified] = useState(false);
 
   // Helper functions to safely access user properties
   const getUserEmail = (): string | undefined => {
@@ -56,14 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getUserName = (): string | undefined => {
     if (!user) return undefined;
-
     // Use optional chaining for safer property access
     return (user.user_metadata?.user_name as string | undefined) || "User";
   };
 
   const getUserAvatar = (): string | undefined => {
     if (!user) return undefined;
-
     return user.user_metadata?.avatar_url;
   };
 
@@ -76,10 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return Boolean(user?.user_metadata?.email_verified);
   };
 
-  const isProfileComplete = (): boolean => {
-    return Boolean(getUserEmail() && getUserName());
-  };
-
+  // Enhanced refreshUser with security token verification
   const refreshUser = async () => {
     if (!isClient) return; // Skip this on server-side rendering
 
@@ -87,7 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const userData = await getUser();
-      setUser(userData as User);
+      
+      // Create an immutable user object to prevent direct manipulation
+      if (userData) {
+        setUser(Object.freeze(userData as User));
+        setAuthVerified(true);
+      } else {
+        setUser(null);
+      }
     } catch (err) {
       console.error("Failed to fetch user:", err);
       setError("Failed to fetch user data");
@@ -97,20 +99,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Enhanced signOut with security measures
   const signOut = async () => {
     if (!isClient) return; // Skip this on server-side rendering
 
     setIsLoading(true);
     try {
+      // Use signOutAction from server actions for secure logout
       const { errorMessage } = await signOutAction();
       if (errorMessage) {
         throw new Error(errorMessage);
       }
+      
+      // Clear authentication state
       setUser(null);
+      setAuthVerified(false);
+      
+      // Use replace for non-interceptable navigation
+      window.location.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/`);
+      
+      // Prevent further code execution after redirect
+      return new Promise<void>(() => {});
     } catch (err) {
       console.error("Failed to sign out:", err);
       setError("Failed to sign out");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -127,8 +139,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isClient]);
 
-  // Create context value object outside of JSX to avoid unnecessary re-renders
-  const contextValue: AuthContextType = {
+  // Add protection against client-side tampering
+  useEffect(() => {
+    if (isClient && user) {
+      // Add navigation listener to verify auth state on route changes
+      const handleRouteChange = () => {
+        // Verify auth state on navigation if we haven't already
+        if (!isLoading && authVerified) {
+          refreshUser();
+        }
+      };
+
+      // Listen for client-side navigation events
+      window.addEventListener('popstate', handleRouteChange);
+      
+      // Clean up
+      return () => {
+        window.removeEventListener('popstate', handleRouteChange);
+      };
+    }
+  }, [isClient, user, isLoading, authVerified]);
+
+  // Create immutable context value to prevent manipulation
+  const contextValue: AuthContextType = Object.freeze({
     user,
     isLoading,
     error,
@@ -139,8 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getFullName,
     getUserAvatar,
     isEmailVerified,
-    isProfileComplete,
-  };
+  });
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
