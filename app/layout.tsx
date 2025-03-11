@@ -10,6 +10,8 @@ import { SidebarWithContext } from "@/components/sidebar/sidebar";
 import LazySidebarContent from "@/components/lazyLoad/lazyloadSidebarContent";
 import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/header/header";
+import {  ProgressBar } from "@/components/ui/page-progress";
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,6 +28,8 @@ export default function RootLayout({
       <body
         className={`${GeistSans.className} ${GeistMono.variable} antialiased`}
       >
+      <ProgressBar className="page-progress" >
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -40,7 +44,9 @@ export default function RootLayout({
                     <LazySidebarContent />
                   </SidebarWithContext>
                   <div className="h-dvh w-dvw overflow-hidden max-w-screen-2xl m-auto">
+
                     <Header />
+
                     {children}
                   </div>
                 </SidebarProvider>
@@ -48,6 +54,8 @@ export default function RootLayout({
             </AuthProvider>
           </Providers>
         </ThemeProvider>
+        </ProgressBar>
+
       </body>
     </html>
   );

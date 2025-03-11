@@ -154,8 +154,14 @@
   .icons{
     @apply  h-[18px] w-[18px] shrink-0;
   }
+  .page-progress {
+    @apply bg-primary h-[2px] fixed top-0 left-0 right-0 z-50 bg-blue-500;
+  }
 }
 
 .space-y-1\.5 > :not([hidden]) ~ :not([hidden]){
   margin-top: 0!important;
 }
+
+
+

@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import LoginForm from "@/app/login/login-form";
 import { getUser } from "../../lib/auth";
 import { redirect } from "next/navigation";
+import { ProgressBarLink } from "@/components/ui/page-progress";
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -27,19 +27,19 @@ export default async function AuthenticationPage() {
           <LoginForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
-            <Link
+            <ProgressBarLink
               href="/terms"
               className="underline underline-offset-4 hover:text-primary"
             >
               Terms of Service
-            </Link>{" "}
+            </ProgressBarLink>{" "}
             and{" "}
-            <Link
+            <ProgressBarLink
               href="/privacy"
               className="underline underline-offset-4 hover:text-primary"
             >
               Privacy Policy
-            </Link>
+            </ProgressBarLink>
             .
           </p>
         </div>

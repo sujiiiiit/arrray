@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
-import Link from "next/link";
+import { ProgressBarLink } from "@/components/ui/page-progress";
+
 import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -206,7 +206,7 @@ export function DynamicBreadcrumb({
                   {isCurrentPage(path) ? (
                     <BreadcrumbPage>{getPathName(path)}</BreadcrumbPage>
                   ) : (
-                    <Link className="transition-colors hover:text-foreground" href={path}>{getPathName(path)}</Link>
+                    <ProgressBarLink className="transition-colors hover:text-foreground" href={path}>{getPathName(path)}</ProgressBarLink>
                   )}
                 </BreadcrumbItem>
 
@@ -223,9 +223,9 @@ export function DynamicBreadcrumb({
                         <DropdownMenuContent align="start">
                           {displayState.hiddenPaths.map((hiddenPath) => (
                             <DropdownMenuItem key={hiddenPath} asChild>
-                              <Link href={hiddenPath}>
+                              <ProgressBarLink href={hiddenPath}>
                                 {getPathName(hiddenPath)}
-                              </Link>
+                              </ProgressBarLink>
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>

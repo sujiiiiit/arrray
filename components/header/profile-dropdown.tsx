@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/tooltip";
 
 import { useAuth } from "@/contexts/auth-context";
-import Link from "next/link";
+import { ProgressBarLink } from "@/components/ui/page-progress";
+
 import { Button } from "../ui/button";
 
 function ProfileDropdown() {
@@ -55,7 +56,7 @@ function ProfileDropdown() {
                 align="start"
                 alignOffset={-100}
               >
-                <Link href={"/profile"}>
+                <ProgressBarLink href={"/profile"}>
                   <DropdownMenuItem>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -77,8 +78,8 @@ function ProfileDropdown() {
                     </svg>
                     <span>Profile</span>
                   </DropdownMenuItem>
-                </Link>
-                <Link href={"/settings"}>
+                </ProgressBarLink>
+                <ProgressBarLink href={"/settings"}>
                 <DropdownMenuItem>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +101,7 @@ function ProfileDropdown() {
                   </svg>
                   <span>Settings</span>
                 </DropdownMenuItem>
-                </Link>
+                </ProgressBarLink>
                 <DropdownMenuItem
                   onClick={handleClickSignOutButton}
                   className="danger focus:bg-destructive-foreground"
@@ -136,11 +137,11 @@ function ProfileDropdown() {
         </>
       ) : (
         <>
-          <Link href={"/login"} className="">
+          <ProgressBarLink href={"/login"} className="">
             <Button variant={"default"} className="h-8 rounded-full">
               Login
             </Button>
-          </Link>
+          </ProgressBarLink>
         </>
       )}
     </>
