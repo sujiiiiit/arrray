@@ -29,7 +29,7 @@ const MessageContainer = () => {
                   id="composer-background"
                   className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl  px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow]  dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"
                 >
-                  <Attachments />
+                  {/* <Attachments /> */}
 
                   <div className="flex flex-col justify-start">
                     <div className="flex min-h-[44px] items-start pl-1">

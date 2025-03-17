@@ -19,6 +19,7 @@ export default {
           primary: "var(--text-primary)",
           secondary: "var(--text-secondary)",
           light: "var(--text-light)",
+          blue: "var(--text-blue)",
         },
         light: "var(--light)",
         background: "hsl(var(--background))",

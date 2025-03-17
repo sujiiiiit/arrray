@@ -11,6 +11,8 @@ import LazySidebarContent from "@/components/lazyLoad/lazyloadSidebarContent";
 import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/header/header";
 import {  ProgressBar } from "@/components/ui/page-progress";
+import { Toaster } from "@/components/ui/sonner"
+
 
 
 export const metadata: Metadata = {
@@ -48,7 +50,9 @@ export default function RootLayout({
                     <Header />
 
                     {children}
+
                   </div>
+                  <Toaster />
                 </SidebarProvider>
               </TooltipProvider>
             </AuthProvider>
