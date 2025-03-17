@@ -117,7 +117,7 @@
     --light: rgb(255, 255, 255, 0.1);
     --text-primary: #fff;
     --text-secondary: #b4b4b4;
-    --message-container: #1f1f1f;
+    --message-container: rgba(31, 31, 31);
     --dropdown: rgb(33, 33, 33, 0.4);
     --text-blue: rgb(147, 197, 253);
   }

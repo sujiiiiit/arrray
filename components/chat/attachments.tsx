@@ -1,7 +1,6 @@
 const Attachments = () => {
   return (
     <>
-      <div className="-ml-1.5 flex flex-nowrap gap-2 overflow-x-auto p-1.5">
         <div className="group relative inline-block text-sm ">
           <div className="relative overflow-hidden border border-light bg-accent rounded-2xl">
             <div className="p-2 min-w-40 w-auto max-w-52">
@@ -93,7 +92,7 @@ const Attachments = () => {
             </span>
           </button>
         </div>
-      </div>
+     
     </>
   );
 };

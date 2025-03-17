@@ -13,21 +13,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input-password";
-// import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input"; // ✅ Fixed import
 import Link from "next/link";
 
 const Page = () => {
-  return <MyForm />;
+  return <KeyForm />;
 };
 
-export default Page;
 
 const formSchema = z.object({
   name_6890500917: z.string().min(1).optional(),
 });
 
-export function MyForm() {
+const KeyForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -50,7 +48,7 @@ export function MyForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-full max-w-xl px-3 sm:px-6 "
+        className="space-y-8 w-full max-w-xl px-3 sm:px-6"
       >
         <FormField
           control={form.control}
@@ -62,11 +60,11 @@ export function MyForm() {
                 <Input placeholder="XXXXXXXXXXXXX..." type="text" {...field} />
               </FormControl>
               <FormDescription>
-                get you google key from{" "}
+                Get your Google API key from{" "}
                 <Link
                   target="_blank"
-                  href={"https://aistudio.google.com/apikey"}
-                  className="text-color-blue hover:underline"
+                  href="https://aistudio.google.com/apikey"
+                  className="text-blue-500 hover:underline" // ✅ Fixed class
                 >
                   here
                 </Link>
@@ -79,4 +77,7 @@ export function MyForm() {
       </form>
     </Form>
   );
-}
+};
+
+export default Page;
+

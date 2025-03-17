@@ -6,7 +6,6 @@ import { Keys, Profile, RightArrowSmall, LeftArrow } from "./icons";
 import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb";
 import { useState, useEffect, useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 
 // Navigation configuration - easier to maintain and extend
 const NAVIGATION_ITEMS = [
