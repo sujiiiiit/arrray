@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     } = supabase.storage.from(bucket).getPublicUrl(data.path);
 
     return NextResponse.json({ success: true, filePath: data.path, publicUrl });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return NextResponse.json({ error: message }, { status: 500 });
   }
 }

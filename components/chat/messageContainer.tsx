@@ -13,7 +13,7 @@ import {
 import { toggleDialog } from "@/store/dialogSlice";
 import { useContentEditable } from "@/hooks/useContentEditable";
 import { useAppDispatch } from "@/hooks/redux";
-import FindProjects from "./find-projects";
+import FindProjects from "./projects/Dialog";
 
 
 const MessageContainer = () => {

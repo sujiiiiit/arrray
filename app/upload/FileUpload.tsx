@@ -65,10 +65,10 @@ export default function FileUpload({
           publicUrl: result.publicUrl
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error uploading file:', error);
       if (onError) {
-        onError(error.message || 'Failed to upload file');
+        onError(error instanceof Error ? error.message : 'Failed to upload file');
       }
     } finally {
       setIsUploading(false);

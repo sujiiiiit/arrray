@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input"; // ✅ Fixed import
+import { Input } from "@/components/ui/input-password"; // ✅ Fixed import
 import Link from "next/link";
 
 const Page = () => {
