@@ -5,7 +5,7 @@ interface AddProjectProps {
 
 export function AddProject({ selectedProject,success }: AddProjectProps) {
   return (
-    <label className={`flex h-9 min-w-8 items-center justify-center rounded-full border p-2 pl-3 text-[13px] font-medium border-light cursor-pointer group hover:bg-accent text-color-secondary transition-all bg-transparent gap-[2px] outline-0 layer-transition ${success ? '!bg-blue-100 !border-blue-100 !text-blue-500 dark:text-[#48AAFF] dark:bg-blue-500/20 dark:border-blue-500/20 ' : ''}`}>
+    <label className={`flex h-9 min-w-8 items-center justify-center rounded-full border p-2 pl-3 text-[13px] font-medium  cursor-pointer group  transition-all  gap-[2px] outline-0 layer-transition ${success ? 'bg-blue-100 border-blue-100 text-blue-500 dark:text-[#48AAFF] dark:bg-blue-500/20 dark:border-blue-500/20 ' : 'bg-transparent hover:bg-accent text-color-secondary border-light'}`}>
       <svg
         viewBox="0 0 24 24"
         fill="none"
