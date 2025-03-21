@@ -10,15 +10,43 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 import { toggleDialog } from "@/store/dialogSlice";
 import { useContentEditable } from "@/hooks/useContentEditable";
 import { useAppDispatch } from "@/hooks/redux";
 import FindProjects from "./projects/Dialog";
-
+import {  useState } from "react";
+import { useFileUpload } from "@/hooks/useFileUpload";
 
 const MessageContainer = () => {
   const { contentEditableRef, hasContent } = useContentEditable();
   const dispatch = useAppDispatch();
+  // const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    files,
+    fileInputRef,
+    handleFileSelect,
+    handlePaste,
+    removeFile,
+  } = useFileUpload();
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Update the file upload handler to keep the dropdown open
+  const handleFileUpload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("File upload button clicked");
+
+    // Keep the dropdown open
+    setDropdownOpen(true);
+
+    // Directly click the file input without using setTimeout
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   return (
     <>
@@ -31,9 +59,11 @@ const MessageContainer = () => {
                   id="composer-background"
                   className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl  px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow]  dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"
                 >
-                  <div className="-ml-1.5 flex flex-nowrap gap-2 overflow-x-auto">
-                    {/* <Attachments /> */}
-                  </div>
+                  {files.length > 0 && (
+                    <div className="-ml-1.5 flex flex-nowrap gap-2 overflow-x-auto">
+                      <Attachments files={files} onRemoveFile={removeFile} />
+                    </div>
+                  )}
 
                   <div className="flex flex-col justify-start">
                     <div className="flex min-h-[44px] items-start pl-1">
@@ -47,6 +77,7 @@ const MessageContainer = () => {
                             id="prompt-textarea"
                             data-virtualkeyboard="true"
                             ref={contentEditableRef}
+                            onPaste={handlePaste}
                           ></div>
 
                           <span
@@ -73,7 +104,7 @@ const MessageContainer = () => {
                         <div className="relative">
                           <div className="relative">
                             <div className="flex flex-col">
-                              <DropdownMenu>
+                              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <DropdownMenuTrigger asChild>
@@ -132,7 +163,9 @@ const MessageContainer = () => {
                                       <span>Choose from Project space</span>
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={handleFileUpload}
+                                    >
                                       <span className="flex items-center justify-center text-color-secondary h-5 w-5">
                                         <svg
                                           xmlns="http://www.w3.org/2000/svg"
@@ -160,6 +193,14 @@ const MessageContainer = () => {
                                       </span>
                                       <span>Upload from computer</span>
                                     </DropdownMenuItem>
+                                    <Input
+                                      ref={fileInputRef}
+                                      type="file"
+                                      className="hidden"
+                                      onChange={handleFileSelect}
+                                      multiple
+                                      accept="image/*,application/pdf,text/plain"
+                                    />
                                   </DropdownMenuContent>
                                 </Tooltip>
                               </DropdownMenu>

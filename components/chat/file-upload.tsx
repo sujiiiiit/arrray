@@ -1,13 +1,12 @@
 "use client";
 
 import type React from "react";
-
 import { useRef } from "react";
-
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
+
 interface FileUploadProps {
-  onFilesDrop?: (files: File[]) => void;
+  onFilesDrop: (files: File[]) => void;
   maxFiles?: number;
   maxSizeMB?: number;
   acceptedFileTypes?: string[];
@@ -118,9 +117,14 @@ export default function FileUpload({
           return;
         }
 
-        if (onFilesDrop) {
+        console.log("Files being dropped and passed to onFilesDrop:", droppedFiles);
+        // Make sure we have a valid function to call
+        if (typeof onFilesDrop === 'function') {
           onFilesDrop(droppedFiles);
+        } else {
+          console.error("onFilesDrop is not a function", onFilesDrop);
         }
+        
         e.dataTransfer.clearData();
       }
     },
@@ -128,6 +132,7 @@ export default function FileUpload({
   );
 
   useEffect(() => {
+    // These event listeners must be added to the window to catch all drag events
     window.addEventListener("dragenter", handleDragIn);
     window.addEventListener("dragleave", handleDragOut);
     window.addEventListener("dragover", handleDrag);
@@ -141,7 +146,8 @@ export default function FileUpload({
     };
   }, [handleDragIn, handleDragOut, handleDrag, handleDrop]);
 
-    if (!isDragging) return null
+  // Only render the drop area when dragging
+  if (!isDragging) return null;
 
   return (
     <div
@@ -155,12 +161,11 @@ export default function FileUpload({
         <div className="flex flex-col items-center justify-center gap-4">
           <Image src="/upload-assets.svg" alt="upload" width={12} height={12} className="w-48" />
           <div className="flex flex-col gap-3 w-full justify-center text-center">
-            <h3 className="text-2xl font-medium">Add anything</h3>
-            <p className="text-base  text-muted-foreground">
+            <h3 className="text-2xl text-white font-medium">Add anything</h3>
+            <p className="text-base text-white">
               Drag any file to add it to conversation
             </p>
           </div>
-          {/* <p className="text-xs text-muted-foreground">Accepted file types: {acceptedFileTypes.join(", ")}</p> */}
         </div>
       </div>
     </div>
