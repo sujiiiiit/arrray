@@ -80,7 +80,7 @@ export const ProjectList = forwardRef<ProjectListRef, ProjectListProps>(
         );
       }
       return (
-        <ScrollArea className="h-dvh max-h-[60dvh] sm:h-[calc(60dvh-10rem)] mt-0 w-full">
+        <ScrollArea className="h-dvh max-h-[60dvh] sm:h-[calc(60dvh-10rem)] mt-0 w-full px-3">
           {filteredProjects.map((project) => (
             <button
               key={project.id}
@@ -89,7 +89,7 @@ export const ProjectList = forwardRef<ProjectListRef, ProjectListProps>(
                 selectedProject && selectedProject.id === project.id
                   ? "bg-blue-100 border-blue-100 text-blue-500 dark:text-[#48AAFF] dark:bg-blue-500/20 dark:border-blue-500/20 "
                   : "bg-messageContainer hover:bg-accent"
-              } text-left px-5 py-2 rounded-lg sm:rounded-none`}
+              } text-left px-5 py-2 rounded-lg  truncate`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +129,9 @@ export const ProjectList = forwardRef<ProjectListRef, ProjectListProps>(
                   </>
                 )}
               </svg>
+              <span className="w-full max-w-52 truncate">
               {project.name}
+              </span>
             </button>
           ))}
         </ScrollArea>
