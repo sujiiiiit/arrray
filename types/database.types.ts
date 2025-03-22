@@ -61,20 +61,3 @@ export interface User {
   is_anonymous?: boolean;
 }
 
-[
-  {
-    "raw_user_meta_data": {
-      "iss": "https://api.github.com",
-      "sub": "159754157",
-      "name": "Sujit Dwivedi",
-      "email": "dwiwedisv@rknec.edu",
-      "full_name": "Sujit Dwivedi",
-      "user_name": "sujiiiiit",
-      "avatar_url": "https://avatars.githubusercontent.com/u/159754157?v=4",
-      "provider_id": "159754157",
-      "email_verified": true,
-      "phone_verified": false,
-      "preferred_username": "sujiiiiit"
-    }
-  }
-]

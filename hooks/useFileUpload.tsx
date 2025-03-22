@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { addFile, updateFile, removeFile as removeFileAction } from '@/store/uploadSlice';
-
+import {toast} from 'sonner'
 export type FileStatus = 'idle' | 'uploading' | 'uploaded' | 'error';
 
 export interface UploadedFile {
@@ -126,6 +126,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
     
     try {
       console.log(`Starting upload for ${file.name}`);
+      toast(`Uploading file ${file.name}`)
       
       // Create form data
       const formData = new FormData();
@@ -144,11 +145,13 @@ export function useFileUpload(options: FileUploadOptions = {}) {
               progress
             }));
             console.log(`Upload progress for ${file.name}: ${progress}%`);
+            toast(`Uploading file ${file.name} ${progress}%`)
           }
         }
       });
       
       console.log(`Upload successful for ${file.name}:`, response.data);
+      toast(`Upload successful for ${file.name}`)
       
       // Update file status with result
       const updatedFile: UploadedFile = {
@@ -164,6 +167,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
       
     } catch (error) {
       console.error(`Upload failed for ${file.name}:`, error);
+      toast(`Upload failed for ${file.name}`)
       
       const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       
@@ -187,6 +191,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
     if (!validation.valid) {
       setValidationError(validation.message);
       console.error(validation.message);
+      toast(validation.message)
       return [];
     }
     
@@ -194,6 +199,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
     setValidationError(null);
     
     console.log(`Uploading ${filesToUpload.length} files`);
+    toast(`Uploading ${filesToUpload.length} files`)
     return Promise.all(filesToUpload.map(file => uploadToSupabase(file)));
   }, [uploadToSupabase, validateFiles]);
   

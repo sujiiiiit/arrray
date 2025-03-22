@@ -4,7 +4,7 @@ import type React from "react";
 import { useRef } from "react";
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-
+import { toast } from "sonner";
 interface FileUploadProps {
   onFilesDrop: (files: File[]) => void;
   maxFiles?: number;
@@ -114,6 +114,7 @@ export default function FileUpload({
 
         if (!validation.valid) {
           console.error(validation.message);
+          toast.error(validation.message);
           return;
         }
 
