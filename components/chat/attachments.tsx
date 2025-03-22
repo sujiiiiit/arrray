@@ -8,7 +8,7 @@ interface AttachmentProps {
 const Attachment = ({ file, onRemove }: AttachmentProps) => {
   const { status, name, type, progress, thumbnailUrl, size } = file;
   
-  console.log("Rendering individual attachment:", file);
+  // console.log("Rendering individual attachment:", file);
 
   // Format file size for display
   const formatFileSize = (bytes: number): string => {

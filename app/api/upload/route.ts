@@ -69,14 +69,13 @@ export async function POST(request: NextRequest) {
     console.log("Upload successful, data:", data);
 
     // Get public URL for the uploaded file
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(bucket).getPublicUrl(data.path);
-
-    console.log("Public URL:", publicUrl);
+    // const {
+    //   data: { publicUrl },
+    // } = supabase.storage.from(bucket).getPublicUrl(data.path);
 
     return NextResponse.json({
       success: true,
+      fileId: data.id,
       filePath: data.path,
       // publicUrl,
       fileName: file.name,

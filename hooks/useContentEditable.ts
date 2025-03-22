@@ -1,68 +1,65 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
-export const useContentEditable = () => {
+interface UseContentEditableProps {
+  onSubmit: (content: string) => void;
+}
+
+export const useContentEditable = ({ onSubmit }: UseContentEditableProps) => {
   const contentEditableRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [hasContent, setHasContent] = useState(false);
 
   // Memoized function to check content
   const checkContent = useCallback(() => {
-    const content = contentEditableRef.current?.innerHTML.trim();
+    const content = contentEditableRef.current?.innerText.trim();
     setHasContent(!!content && content !== "<br>");
+    if (textAreaRef.current && contentEditableRef.current) {
+      textAreaRef.current.value = contentEditableRef.current.innerText;
+    }
   }, []);
 
-  // Handle paste event efficiently
-  const handlePaste = useCallback((event: ClipboardEvent) => {
-    event.preventDefault();
-
-    const clipboardData = event.clipboardData;
-    if (!clipboardData) return;
-
-    const items = clipboardData.items;
-    const currentDiv = contentEditableRef.current;
-
-    if (!items || !currentDiv) return;
-
-    for (const item of items) {
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            console.log("Pasted image URL:", e.target?.result);
-          };
-          reader.readAsDataURL(file);
-        }
-      } else if (item.kind === "string") {
-        item.getAsString((text) => {
-          const selection = window.getSelection();
-          if (selection && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(document.createTextNode(text));
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          } else {
-            currentDiv.textContent += text;
-          }
-          checkContent();
-        });
-      }
+  // Handle keydown for preventing a leading blank space and triggering submit on Enter (without Shift)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Prevent starting with a blank space
+    if (
+      contentEditableRef.current &&
+      contentEditableRef.current.textContent === "" &&
+      e.key === " "
+    ) {
+      e.preventDefault();
+      return;
     }
-  }, [checkContent]);
+
+    // Trigger submit when Enter is pressed without Shift
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit(contentEditableRef.current?.innerText || "");
+    }
+  }, [onSubmit]);
+
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData?.getData("text/plain");
+    document.execCommand("insertText", false, text);
+    if (textAreaRef.current && contentEditableRef.current) {
+      textAreaRef.current.value = contentEditableRef.current.innerText;
+    }
+  }, []);
 
   useEffect(() => {
     const contentEditableElement = contentEditableRef.current;
     if (!contentEditableElement) return;
 
     contentEditableElement.addEventListener("input", checkContent);
-    contentEditableElement.addEventListener("paste", handlePaste as EventListener);
+    contentEditableElement.addEventListener("keydown", handleKeyDown);
+    contentEditableElement.addEventListener("paste", handlePaste);
 
     return () => {
       contentEditableElement.removeEventListener("input", checkContent);
-      contentEditableElement.removeEventListener("paste", handlePaste as EventListener);
+      contentEditableElement.removeEventListener("keydown", handleKeyDown);
+      contentEditableElement.removeEventListener("paste", handlePaste);
     };
-  }, [checkContent, handlePaste]);
+  }, [checkContent, handleKeyDown, handlePaste]);
 
-  return { contentEditableRef, hasContent };
+  return { contentEditableRef, textAreaRef, hasContent };
 };

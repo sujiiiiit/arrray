@@ -19,7 +19,12 @@ import {  useState } from "react";
 import { useFileUpload } from "@/hooks/useFileUpload";
 
 const MessageContainer = () => {
-  const { contentEditableRef, hasContent } = useContentEditable();
+  const handleSubmit = () => {
+    // Get content from textarea which is synced with contentEditable
+    const content = textAreaRef.current?.value || "";
+    console.log("Submit message:", content);
+  };
+  const { contentEditableRef, hasContent,textAreaRef } = useContentEditable({onSubmit: handleSubmit});
   const dispatch = useAppDispatch();
   // const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,8 +74,8 @@ const MessageContainer = () => {
                     <div className="flex min-h-[44px] items-start pl-1">
                       <div className="min-w-0 max-w-full flex-1">
                         <div className="relative flex  max-h-52 overflow-y-auto">
-                          <textarea className="hidden"></textarea>
-                          <div
+                        <textarea className="hidden" ref={textAreaRef}></textarea>
+                        <div
                             contentEditable="true"
                             translate="no"
                             className="w-full p-[0.5rem_0] overflow-auto resize-none border-none outline-none text-base transition-all duration-200 ease-in-out  relative "
@@ -78,6 +83,12 @@ const MessageContainer = () => {
                             data-virtualkeyboard="true"
                             ref={contentEditableRef}
                             onPaste={handlePaste}
+                            onInput={() => {
+                              // Keep textarea synced with contentEditable on any input
+                              if (textAreaRef.current && contentEditableRef.current) {
+                                textAreaRef.current.value = contentEditableRef.current.innerText;
+                              }
+                            }}
                           ></div>
 
                           <span
@@ -266,6 +277,8 @@ const MessageContainer = () => {
                       <div className="min-w-9">
                         <span className="" data-state="closed">
                           <button
+                            type="button"
+                            onClick={handleSubmit}
                             className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
                             disabled={!hasContent}
                           >
