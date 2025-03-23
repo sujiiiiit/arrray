@@ -1,21 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from './store';
 import { UploadedFile } from '@/hooks/useFileUpload';
 
 interface FileUploadState {
   files: UploadedFile[];
+  isUploading: boolean;
 }
 
 const initialState: FileUploadState = {
-  files: []
+  files: [],
+  isUploading: false
 };
 
-export const fileUploadSlice = createSlice({
+export const uploadSlice = createSlice({
   name: 'fileUpload',
   initialState,
   reducers: {
     addFile: (state, action: PayloadAction<UploadedFile>) => {
       state.files.push(action.payload);
-      console.log(`Added file: ${action.payload.name}`);
     },
     updateFile: (state, action: PayloadAction<UploadedFile>) => {
       const index = state.files.findIndex(file => file.id === action.payload.id);
@@ -26,11 +28,19 @@ export const fileUploadSlice = createSlice({
     removeFile: (state, action: PayloadAction<string>) => {
       state.files = state.files.filter(file => file.id !== action.payload);
     },
-    clearFiles: (state) => {
+    setIsUploading: (state, action: PayloadAction<boolean>) => {
+      state.isUploading = action.payload;
+    },
+    clearAllFiles: (state) => {
       state.files = [];
+      state.isUploading = false;
     }
   }
 });
 
-export const { addFile, updateFile, removeFile, clearFiles } = fileUploadSlice.actions;
-export default fileUploadSlice.reducer;
+export const { addFile, updateFile, removeFile, setIsUploading, clearAllFiles } = uploadSlice.actions;
+
+export const selectFiles = (state: RootState) => state.fileUpload.files;
+export const selectIsUploading = (state: RootState) => state.fileUpload.isUploading;
+
+export default uploadSlice.reducer;

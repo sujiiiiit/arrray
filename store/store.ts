@@ -2,12 +2,15 @@
 import { configureStore } from '@reduxjs/toolkit';
 import dialogReducer from './dialogSlice';
 import fileUploadReducer from './uploadSlice';
+import inputReducer from './inputSlice';
+
 
 
 export const store = configureStore({
   reducer: {
     dialog: dialogReducer,
     fileUpload: fileUploadReducer,
+    input: inputReducer,
 
   },
 });

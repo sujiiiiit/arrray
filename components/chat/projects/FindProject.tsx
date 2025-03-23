@@ -26,7 +26,7 @@ import { AddProject } from "./AddProject";
 import { DialogDescription } from "@radix-ui/react-dialog";
 
 // Main component: state only used for callbacks, not storing selectedProject
-interface Project {
+export interface Project {
   id: string | number;
   name: string;
   [key: string]: string | number;

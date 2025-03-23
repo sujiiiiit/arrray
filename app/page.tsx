@@ -5,11 +5,22 @@ import MessageContainer from "@/components/chat/messageContainer";
 import Imports from "@/components/chat/imports";
 import FileUpload from "@/components/chat/file-upload";
 import {useFileUpload} from "@/hooks/useFileUpload";
+
 const App = () => {
   const { handleFileDrop } = useFileUpload();
 
-
-  // Add debug logging
+  // Create an adapter function that accepts File[] and passes it to handleFileDrop
+  const handleFilesDropAdapter = (files: File[]) => {
+    // Create a minimal synthetic event or process the files directly
+    // depending on what your handleFileDrop actually needs
+    const event = { 
+      dataTransfer: { files },
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    } as unknown as React.DragEvent<HTMLDivElement>;
+    
+    handleFileDrop(event);
+  };
 
   return (
     <>
@@ -24,7 +35,7 @@ const App = () => {
         maxFiles={5}
         maxSizeMB={10}
         acceptedFileTypes={["image/*", "application/pdf", "text/plain"]}
-        onFilesDrop={handleFileDrop}
+        onFilesDrop={handleFilesDropAdapter}
       />
     </>
   );

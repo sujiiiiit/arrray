@@ -1,44 +1,97 @@
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { useContentEditable } from "@/hooks/useContentEditable";
+import { useFileUpload } from "@/hooks/useFileUpload";
+
 import Attachments from "@/components/chat/attachments";
+import FindProjects, { Project } from "@/components/chat/projects/FindProject";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Input } from "@/components/ui/input";
+
 import { toggleDialog } from "@/store/dialogSlice";
-import { useContentEditable } from "@/hooks/useContentEditable";
-import { useAppDispatch } from "@/hooks/redux";
-import FindProjects from "./projects/Dialog";
-import {  useState } from "react";
-import { useFileUpload } from "@/hooks/useFileUpload";
+import {
+  selectInput,
+  setText,
+  updateTimestamp,
+  toggleSearch,
+  selectProject,
+} from "@/store/inputSlice";
+import { clearAllFiles } from "@/store/uploadSlice";
 
 const MessageContainer = () => {
+  const inputState = useAppSelector(selectInput);
+  // const uploadedImages = useAppSelector(selectImageFiles);
+  const dispatch = useAppDispatch();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Synchronize text input with Redux
+  const handleTextChange = (text: string) => {
+    if (textAreaRef.current) {
+      textAreaRef.current.value = text;
+      dispatch(setText(text));
+    }
+  };
+
   const handleSubmit = () => {
     // Get content from textarea which is synced with contentEditable
     const content = textAreaRef.current?.value || "";
+
+    // Create a submission object that includes text and files
+    const hasFiles = files.length > 0;
+
+    // Add the content to the input slice
+    if (textAreaRef.current) {
+      textAreaRef.current.value = "";
+    }
+    if (contentEditableRef.current) {
+      contentEditableRef.current.innerText = "";
+      clearContent();
+    }
+
+    setTimeout(() => {
+      dispatch(setText(""));
+    }, 200);
+
+    // Update timestamp when message is sent
+    dispatch(updateTimestamp());
+
+    // Now log the complete input state after updates
     console.log("Submit message:", content);
+    console.log("Files attached:", files.length > 0 ? files : "none");
+    console.log("Current input slice state:", inputState);
+
+    // Clear all files from Redux store
+    if (hasFiles) {
+      // Import and use the clearAllFiles action from uploadSlice
+      dispatch(clearAllFiles());
+    }
   };
-  const { contentEditableRef, hasContent,textAreaRef } = useContentEditable({onSubmit: handleSubmit});
-  const dispatch = useAppDispatch();
-  // const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    files,
-    fileInputRef,
-    handleFileSelect,
-    handlePaste,
-    removeFile,
-  } = useFileUpload();
+  const { contentEditableRef, hasContent, textAreaRef, clearContent } =
+    useContentEditable({
+      onSubmit: handleSubmit,
+      onChange: handleTextChange,
+    });
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { files, fileInputRef, handleFileSelect, handlePaste, removeFile } =
+    useFileUpload();
 
-  // Update the file upload handler to keep the dropdown open
+  // Handle search toggle
+  const handleSearchToggle = () => {
+    dispatch(toggleSearch());
+  };
+
+  // Handle file upload button click
   const handleFileUpload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -47,22 +100,45 @@ const MessageContainer = () => {
     // Keep the dropdown open
     setDropdownOpen(true);
 
-    // Directly click the file input without using setTimeout
+    // Directly click the file input
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+V or Cmd+V is handled by default paste behavior
+    // But could add other shortcuts here
+
+    // Example: Ctrl/Cmd+Enter to submit
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  const handleProjectSelect = (project: Project) => {
+    console.log("Selected project:", project);
+    dispatch(selectProject(project.id as string));
+  };
+
   return (
     <>
       <div className="message-container w-full">
-        <form className="w-full">
+        <form
+          className="w-full"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           <div className="relative z-[1] flex h-full max-w-full flex-1 flex-col">
             <div className="group relative z-[1] flex w-full items-center">
               <div className="w-full p-3">
                 <div
                   id="composer-background"
-                  className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl  px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow]  dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"
+                  className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow] dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"
                 >
                   {files.length > 0 && (
                     <div className="-ml-1.5 flex flex-nowrap gap-2 overflow-x-auto">
@@ -73,26 +149,35 @@ const MessageContainer = () => {
                   <div className="flex flex-col justify-start">
                     <div className="flex min-h-[44px] items-start pl-1">
                       <div className="min-w-0 max-w-full flex-1">
-                        <div className="relative flex  max-h-52 overflow-y-auto">
-                        <textarea className="hidden" ref={textAreaRef}></textarea>
-                        <div
+                        <div className="relative flex max-h-52 overflow-y-auto">
+                          <textarea
+                            className="hidden"
+                            ref={textAreaRef}
+                            onChange={(e) => handleTextChange(e.target.value)}
+                          ></textarea>
+                          <div
                             contentEditable="true"
                             translate="no"
-                            className="w-full p-[0.5rem_0] overflow-auto resize-none border-none outline-none text-base transition-all duration-200 ease-in-out  relative "
+                            className="w-full p-[0.5rem_0] overflow-auto resize-none border-none outline-none text-base transition-all duration-200 ease-in-out relative"
                             id="prompt-textarea"
                             data-virtualkeyboard="true"
                             ref={contentEditableRef}
                             onPaste={handlePaste}
+                            onKeyDown={handleKeyDown}
                             onInput={() => {
                               // Keep textarea synced with contentEditable on any input
-                              if (textAreaRef.current && contentEditableRef.current) {
-                                textAreaRef.current.value = contentEditableRef.current.innerText;
+                              if (
+                                textAreaRef.current &&
+                                contentEditableRef.current
+                              ) {
+                                textAreaRef.current.value =
+                                  contentEditableRef.current.innerText;
                               }
                             }}
                           ></div>
 
                           <span
-                            className="text-color-secondary block pointer-events-none absolute opacity-0 max-w-full p-2 pl-0 left-0 z-1 whitespace-nowrap overflow-ellipsis overflow-hidden transition-all data-[state=empty]:opacity-100 duration-150 ease-in-out transform data-[state=empty]:translate-x-0 data-[state=empty]:translate-y-0  translate-x-[calc(1rem_*_1)] translate-y-0"
+                            className="text-color-secondary block pointer-events-none absolute opacity-0 max-w-full p-2 pl-0 left-0 z-1 whitespace-nowrap overflow-ellipsis overflow-hidden transition-all data-[state=empty]:opacity-100 duration-150 ease-in-out transform data-[state=empty]:translate-x-0 data-[state=empty]:translate-y-0 translate-x-[calc(1rem_*_1)] translate-y-0"
                             data-state={hasContent ? "full" : "empty"}
                           >
                             Ask anything
@@ -110,12 +195,15 @@ const MessageContainer = () => {
                     </div>
                   </div>
                   <div className="mb-2 mt-1 flex items-center justify-between sm:mt-5 gap-x-1.5">
-                    <div className="flex gap-x-1.5 ">
+                    <div className="flex gap-x-1.5">
                       <div>
                         <div className="relative">
                           <div className="relative">
                             <div className="flex flex-col">
-                              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                              <DropdownMenu
+                                open={dropdownOpen}
+                                onOpenChange={setDropdownOpen}
+                              >
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <DropdownMenuTrigger asChild>
@@ -226,11 +314,13 @@ const MessageContainer = () => {
                               type="checkbox"
                               id="searchCheckbox"
                               className="hidden peer"
+                              checked={inputState.searchEnabled}
+                              onChange={handleSearchToggle}
                             />
 
                             <label
                               htmlFor="searchCheckbox"
-                              className="flex h-9 min-w-8 items-center justify-center rounded-full border p-2 text-[13px] font-medium border-light cursor-pointer group hover:bg-accent text-color-secondary peer-checked:bg-blue-100 peer-checked:border-blue-100 transition-all peer-checked:text-blue-500 dark:peer-checked:text-[#48AAFF] dark:peer-checked:bg-blue-500/20 dark:peer-checked:border-blue-500/20 "
+                              className="flex h-9 min-w-8 items-center justify-center rounded-full border p-2 text-[13px] font-medium border-light cursor-pointer group hover:bg-accent text-color-secondary peer-checked:bg-blue-100 peer-checked:border-blue-100 transition-all peer-checked:text-blue-500 dark:peer-checked:text-[#48AAFF] dark:peer-checked:bg-blue-500/20 dark:peer-checked:border-blue-500/20"
                             >
                               <svg
                                 width="24"
@@ -258,9 +348,9 @@ const MessageContainer = () => {
                           <p>Search from internet </p>
                         </TooltipContent>
                       </Tooltip>
-                      <FindProjects />
+                      <FindProjects onSelect={handleProjectSelect} />
                     </div>
-                    <div className="flex gap-4 ">
+                    <div className="flex gap-4">
                       <div className="sm:flex hidden font-mono justify-start items-center text-xs gap-2 text-color-secondary select-none">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -272,58 +362,33 @@ const MessageContainer = () => {
                         >
                           <path d="M49,38h-7V22h7c6.065,0,11-4.935,11-11S55.065,0,49,0S38,4.935,38,11v7H22v-7c0-6.065-4.935-11-11-11S0,4.935,0,11  s4.935,11,11,11h7v16h-7C4.935,38,0,42.935,0,49s4.935,11,11,11s11-4.935,11-11v-7h16v7c0,6.065,4.935,11,11,11s11-4.935,11-11  S55.065,38,49,38z M42,11c0-3.859,3.14-7,7-7s7,3.141,7,7s-3.14,7-7,7h-7V11z M11,18c-3.86,0-7-3.141-7-7s3.14-7,7-7s7,3.141,7,7v7  H11z M18,49c0,3.859-3.14,7-7,7s-7-3.141-7-7s3.14-7,7-7h7V49z M22,38V22h16v16H22z M49,56c-3.86,0-7-3.141-7-7v-7h7  c3.86,0,7,3.141,7,7S52.86,56,49,56z" />
                         </svg>
-                        <code className="relative rounded ">+ V to Paste</code>
+                        <code className="relative rounded">+ V to Paste</code>
                       </div>
                       <div className="min-w-9">
-                        <span className="" data-state="closed">
-                          <button
-                            type="button"
-                            onClick={handleSubmit}
-                            className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                            disabled={!hasContent}
-                          >
-                            <div className="flex items-center justify-center">
-                              <svg
-                                width="32"
-                                height="32"
-                                viewBox="0 0 32 32"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="icon-2xl"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                                  fill="currentColor"
-                                ></path>
-                              </svg>
-                            </div>
-                          </button>
-                        </span>
-                        <span className="hidden" data-state="closed">
-                          <button className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-colors focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9">
-                            <div className="flex items-center justify-center">
-                              <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="icon-lg"
-                              >
-                                <rect
-                                  x="7"
-                                  y="7"
-                                  width="10"
-                                  height="10"
-                                  rx="1.25"
-                                  fill="currentColor"
-                                ></rect>
-                              </svg>
-                            </div>
-                          </button>
-                        </span>
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
+                          disabled={!hasContent && files.length === 0}
+                        >
+                          <div className="flex items-center justify-center">
+                            <svg
+                              width="32"
+                              height="32"
+                              viewBox="0 0 32 32"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="icon-2xl"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
+                                fill="currentColor"
+                              ></path>
+                            </svg>
+                          </div>
+                        </button>
                       </div>
                     </div>
                   </div>
