@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import Chat from '@/components/chat/chat';
+import { Chat } from '@/components/chat/chat2';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/chat/data-stream-handler';

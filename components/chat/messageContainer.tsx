@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useContentEditable } from "@/hooks/useContentEditable";
 import { useFileUpload } from "@/hooks/useFileUpload";
-
+import { motion, AnimatePresence } from "framer-motion";
 import Attachments from "@/components/chat/attachments";
 import FindProjects, { Project } from "@/components/chat/projects/FindProject";
 import {
@@ -125,7 +125,12 @@ const MessageContainer = () => {
 
   return (
     <>
-      <div className="message-container w-full">
+    <AnimatePresence>
+      <motion.div
+        className="message-container w-full max-w-3xl sm:pb-4"
+                initial={{ y: 5, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+      >
         <form
           className="w-full"
           onSubmit={(e) => {
@@ -397,7 +402,9 @@ const MessageContainer = () => {
             </div>
           </div>
         </form>
-      </div>
+   
+      </motion.div>
+      </AnimatePresence>
     </>
   );
 };

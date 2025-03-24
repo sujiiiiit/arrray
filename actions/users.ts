@@ -5,7 +5,9 @@ import { Provider } from "@supabase/supabase-js";
 
 export const loginAction = async (provider: Provider) => {
   try {
-    const { data, error } = await (await getSupabaseAuth()).signInWithOAuth({
+    const { data, error } = await (
+      await getSupabaseAuth()
+    ).signInWithOAuth({
       provider,
       options: {
         redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth`,
@@ -29,4 +31,11 @@ export const signOutAction = async () => {
   } catch (error) {
     return { errorMessage: "Error signing out" };
   }
+};
+
+export const auth = async () => {
+  const { data, error } = await (await getSupabaseAuth()).getSession();
+  if (error) throw error;
+
+  return data.session;
 };

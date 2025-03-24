@@ -24,6 +24,8 @@ const Header = () => {
                 <path d="M13.7688 19.0956L0 3.68759H5.53933L13.6231 12.7337V3.68759H17.7535V17.5746C17.7535 19.6705 15.1654 20.6584 13.7688 19.0956Z"></path>
               </svg>
             </ProgressBarLink>
+            
+      
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />

@@ -162,3 +162,7 @@
 .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
   margin-top: 0 !important;
 }
+
+.scrollbar {
+  scrollbar-color: hsl(var(--accent)) transparent;
+}

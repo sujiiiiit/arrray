@@ -52,7 +52,7 @@ export default function RootLayout({
                     {children}
 
                   </div>
-                  <Toaster />
+                  <Toaster position="top-center" richColors />
                 </SidebarProvider>
               </TooltipProvider>
             </AuthProvider>

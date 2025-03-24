@@ -128,7 +128,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
 
       try {
         console.log(`Starting upload for ${file.name}`);
-        toast(`Uploading file ${file.name}`);
+        toast.info(`Uploading file ${file.name}`);
 
         const formData = new FormData();
         formData.append('file', file);
@@ -146,7 +146,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
         });
 
         console.log(`Upload successful for ${file.name}:`, response.data);
-        toast(`Upload successful for ${file.name}`);
+        toast.success(`Upload successful for ${file.name}`);
 
         const updatedFile: UploadedFile = {
           ...newFile,
@@ -171,7 +171,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
         return updatedFile;
       } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error);
-        toast(`Upload failed for ${file.name}`);
+        toast.error(`Upload failed for ${file.name}`);
 
         const errorMessage = error instanceof Error ? error.message : 'Upload failed';
 
@@ -204,7 +204,7 @@ export function useFileUpload(options: FileUploadOptions = {}) {
       setValidationError(null);
 
       console.log(`Uploading ${filesToUpload.length} files`);
-      toast(`Uploading ${filesToUpload.length} files`);
+      // toast(`Uploading ${filesToUpload.length} files`);
       return Promise.all(filesToUpload.map((file) => uploadToSupabase(file)));
     },
     [uploadToSupabase, validateFiles]

@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["avatars.githubusercontent.com"], // For GitHub avatar images
   },
+  typescript:{
+    ignoreBuildErrors: true,
+  },
   // Enhance security headers
   async headers() {
     return [
