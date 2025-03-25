@@ -222,7 +222,7 @@ const PureDocumentHeader = ({
           <FileIcon />
         )}
       </div>
-      <div className="-translate-y-1 sm:translate-y-0 font-medium">{title}</div>
+      <div className="-translate-y-1 sm:translate-y-0 font-medium truncate">{title}</div>
     </div>
     <div className="w-8" />
   </div>

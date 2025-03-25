@@ -32,7 +32,7 @@ Do not update document right after creating it. Wait for user feedback or reques
 `;
 
 export const regularPrompt =
-  'You are a friendly assistant! Keep your responses concise and helpful.';
+  'You are a friendly assistant! Keep your responses concise and helpful. if you want to highlight the pre statatement dont use code';
 
 export const systemPrompt = ({
   selectedChatModel,
@@ -40,7 +40,8 @@ export const systemPrompt = ({
   selectedChatModel: string;
 }) => {
   if (selectedChatModel === 'chat-model-reasoning') {
-    return regularPrompt;
+    // return regularPrompt;
+    return `${regularPrompt}\n\n${artifactsPrompt}`
   } else {
     return `${regularPrompt}\n\n${artifactsPrompt}`;
   }
@@ -50,13 +51,10 @@ export const codePrompt = `
 You are a react adn nextjs code generator that creates self-contained, executable code snippets. When writing code:
 
 1. Each snippet should be complete and runnable on its own
-2. Prefer using print() statements to display outputs
 3. Include helpful comments explaining the code
-4. Keep snippets concise (generally under 15 lines)
 5. Avoid external dependencies - use shadcn-ui and other standard library
 6. Handle potential errors gracefully
 7. Return meaningful output that demonstrates the code's functionality
-8. Don't use input() or other interactive functions
 9. Don't access files or network resources
 10. Don't use infinite loops
 

@@ -1,11 +1,9 @@
 import {
-  useRef,
   useEffect,
   useState,
   useCallback,
   type Dispatch,
   type SetStateAction,
-  memo,
 } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useContentEditable } from "@/hooks/useContentEditable";
@@ -23,7 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { toggleDialog } from "@/store/dialogSlice";
+// import { toggleDialog } from "@/store/dialogSlice";
 import {
   selectInput,
   setText,
@@ -38,7 +36,6 @@ import { Input } from "../ui/input";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import Attachments from "./attachments";
 import { clearAllFiles } from "@/store/uploadSlice";
-
 
 const MessageContainer = ({
   chatId,
@@ -73,15 +70,13 @@ const MessageContainer = ({
   const { width } = useWindowSize();
 
   const { files, fileInputRef, handleFileSelect, handlePaste, removeFile } =
-      useFileUpload();
+    useFileUpload();
 
   // Local storage for input persistence
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
     ""
   );
-
-
 
   // Sync text input with Redux and AI SDK
   const handleTextChange = useCallback(
@@ -94,10 +89,10 @@ const MessageContainer = ({
 
   // Initialize useContentEditable FIRST with a simple onSubmit function that we'll override later
   const { contentEditableRef, hasContent, textAreaRef, clearContent } =
-  useContentEditable({
-    onSubmit: () => {},
-    onChange: handleTextChange,
-  });
+    useContentEditable({
+      onSubmit: () => {},
+      onChange: handleTextChange,
+    });
 
   // Now define submitMessage with access to clearContent
   const submitMessage = useCallback(() => {
@@ -122,9 +117,9 @@ const MessageContainer = ({
     dispatch(updateTimestamp());
 
     if (files.length > 0) {
-          // Import and use the clearAllFiles action from uploadSlice
-          dispatch(clearAllFiles());
-        }
+      // Import and use the clearAllFiles action from uploadSlice
+      dispatch(clearAllFiles());
+    }
 
     // Focus input after submission on desktop
     if (width && width > 768 && contentEditableRef.current) {
@@ -214,7 +209,6 @@ const MessageContainer = ({
     [submitMessage]
   );
 
-  
   return (
     <AnimatePresence>
       <motion.div
@@ -357,7 +351,7 @@ const MessageContainer = ({
                                       </span>
                                       <span>Choose from Project space</span>
                                     </DropdownMenuItem> */}
-                                     <DropdownMenuItem
+                                    <DropdownMenuItem
                                       onClick={handleFileUpload}
                                     >
                                       <span className="flex items-center justify-center text-color-secondary h-5 w-5">
@@ -446,7 +440,7 @@ const MessageContainer = ({
                       <FindProjects onSelect={handleProjectSelect} />
                     </div>
                     <div className="flex gap-4">
-                      <div className="sm:flex hidden font-mono justify-start items-center text-xs gap-2 text-color-secondary select-none">
+                      {/* <div className="sm:flex hidden font-mono justify-start items-center text-xs gap-2 text-color-secondary select-none">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -458,14 +452,14 @@ const MessageContainer = ({
                           <path d="M49,38h-7V22h7c6.065,0,11-4.935,11-11S55.065,0,49,0S38,4.935,38,11v7H22v-7c0-6.065-4.935-11-11-11S0,4.935,0,11  s4.935,11,11,11h7v16h-7C4.935,38,0,42.935,0,49s4.935,11,11,11s11-4.935,11-11v-7h16v7c0,6.065,4.935,11,11,11s11-4.935,11-11  S55.065,38,49,38z M42,11c0-3.859,3.14-7,7-7s7,3.141,7,7s-3.14,7-7,7h-7V11z M11,18c-3.86,0-7-3.141-7-7s3.14-7,7-7s7,3.141,7,7v7  H11z M18,49c0,3.859-3.14,7-7,7s-7-3.141-7-7s3.14-7,7-7h7V49z M22,38V22h16v16H22z M49,56c-3.86,0-7-3.141-7-7v-7h7  c3.86,0,7,3.141,7,7S52.86,56,49,56z" />
                         </svg>
                         <code className="relative rounded">+ V to Paste</code>
-                      </div>
+                      </div> */}
                       <div className="min-w-9">
-                        {status == "ready" ? (
+                        {status === "ready" ? (
                           <button
                             type="button"
                             onClick={submitMessage}
                             className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                            disabled={!hasContent}
+                            disabled={status !== "ready" || !hasContent}
                           >
                             <div className="flex items-center justify-center">
                               <svg
@@ -494,24 +488,25 @@ const MessageContainer = ({
                                 stop();
                                 setMessages((messages) => messages);
                               }}
-                              className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                              disabled={!hasContent}
-                            >
+                              className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black  can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
+                              >
                               <div className="flex items-center justify-center">
                                 <svg
                                   width="32"
                                   height="32"
-                                  viewBox="0 0 32 32"
+                                  viewBox="0 0 24 24"
                                   fill="none"
                                   xmlns="http://www.w3.org/2000/svg"
                                   className="icon-2xl"
                                 >
-                                  <path
-                                    fillRule="evenodd"
-                                    clipRule="evenodd"
-                                    d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
+                                  <rect
+                                    x="7"
+                                    y="7"
+                                    width="10"
+                                    height="10"
+                                    rx="1.25"
                                     fill="currentColor"
-                                  ></path>
+                                  ></rect>
                                 </svg>
                               </div>
                             </button>

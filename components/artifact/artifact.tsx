@@ -248,7 +248,7 @@ function PureArtifact({
       {artifact.isVisible && (
         <motion.div
           data-testid="artifact"
-          className="flex flex-row h-dvh w-dvw fixed top-0 left-0 z-50 bg-transparent"
+          className="flex flex-row h-dvh w-dvw fixed top-0 left-0 z-50 bg-transparent scrollbar"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { delay: 0.4 } }}
@@ -315,7 +315,7 @@ function PureArtifact({
                   artifactStatus={artifact.status}
                 />
 
-                <form className="flex flex-row gap-2 relative items-end w-full px-4 pb-4">
+                <form className="flex flex-row gap-2 relative items-end w-full ">
                   <MultimodalInput
                     chatId={chatId}
                     input={input}

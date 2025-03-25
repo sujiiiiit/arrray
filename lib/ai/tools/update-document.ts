@@ -1,7 +1,7 @@
 import { DataStreamWriter, tool } from 'ai';
 import { Session } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { getDocumentById, saveDocument } from '@/actions/chat';
+import { getDocumentById } from '@/actions/chat';
 import { documentHandlersByArtifactKind } from '@/lib/artifacts/server';
 
 
@@ -39,6 +39,12 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
         type: 'clear',
         content: document.title,
       });
+
+      // Ensure document has a valid kind, defaulting to 'code' if undefined or unsupported
+      if (!document.kind || document.kind !== 'code') {
+        console.warn(`Unsupported document kind: ${document.kind}, defaulting to 'code'`);
+        document.kind = 'code'; // Force document kind to 'code'
+      }
 
       const documentHandler = documentHandlersByArtifactKind.find(
         (documentHandlerByArtifactKind) =>

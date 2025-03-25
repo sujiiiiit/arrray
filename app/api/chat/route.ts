@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     }
 
     // This is chatResult.data, not chat.data as in your original code
-    let chatData = chatResult;
+    const chatData = chatResult;
     console.log("chatData:", chatData);
 
     if (!chatData) {
@@ -76,22 +76,17 @@ export async function POST(request: Request) {
         message: userMessage,
       });
 
-      const { data: saveResult, error: saveResultError } = await saveChat({
+     await saveChat({
         id,
         userId: session.user.id,
         title,
       });
 
-      if (saveResult) {
-        chatData = saveResult;
-      } else {
-        console.error("Error saving chat:", saveResultError);
-      }
     } else if (chatData.userId !== session.user.id) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: saveMessagesData, error: saveMessageError } =
+    
       await saveMessages({
         messages: [
           {
@@ -105,11 +100,7 @@ export async function POST(request: Request) {
         ],
       });
 
-    if (saveMessagesData) {
-      console.log("Messages saved successfully");
-    } else {
-      console.error("Error saving messages:", saveMessageError);
-    }
+  
 
     return createDataStreamResponse({
       execute: (dataStream) => {
@@ -120,7 +111,7 @@ export async function POST(request: Request) {
           maxSteps: 5,
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
-              ? []
+              ? ["createDocument", "updateDocument", "requestSuggestions"]
               : ["createDocument", "updateDocument", "requestSuggestions"],
           experimental_transform: smoothStream({ chunking: "word" }),
           experimental_generateMessageId: generateUUID,
