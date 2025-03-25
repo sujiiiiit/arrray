@@ -18,25 +18,30 @@ export async function performSupabaseAction(action: () => Promise<any>, errorMes
     const user = await getUser();
     if (!user) return { error: "User not authenticated", success: false };
 
-    const { data, error } = await action();
+    const result = await action();
+    const { data, error } = result || { data: null, error: null };
 
     if (error) {
-      console.error(errorMessage, error);
-      return { error: errorMessage, success: false };
+      console.error(`${errorMessage}:`, error);
+      return { error: errorMessage, details: error, success: false };
     }
 
     return { data, success: true };
   } catch (error) {
-    console.error(errorMessage, error);
-    return { error: errorMessage, success: false };
+    console.error(`${errorMessage}:`, error);
+    return { error: errorMessage, details: error, success: false };
   }
 }
 
 export async function saveChat({ id, userId, title }: Chat) {
+  console.log(`Attempting to save chat: ${id} for user: ${userId}`);
+  
   return await performSupabaseAction(
     async () => {
       const supabase = await createSupabaseClient();
-      return await supabase.from(TABLES.CHATS).insert([{ id, userId, title }]);
+      const result = await supabase.from(TABLES.CHATS).insert([{ id, userId, title }]);
+      console.log(`Chat save result:`, result);
+      return result;
     },
     "Failed to save chat"
   );

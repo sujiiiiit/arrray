@@ -1,32 +1,54 @@
+'use server'
+
 import { getChatById, getVotesByChatId, voteMessage } from "@/actions/chat";
+import { auth } from "@/actions/users";
 
 export async function GET(request: Request) {
   const chatId = new URL(request.url).searchParams.get("chatId");
 
-  if (!chatId) return new Response("chatId is required", { status: 400 });
+  if (!chatId) {
+    return new Response(JSON.stringify({ error: "chatId is required" }), {
+      status: 400,
+    });
+  }
 
   try {
-    const { data: chat, error: chaterror } = await getChatById({ id: chatId });
+    const session = await auth();
 
-    if (chaterror)
-      return new Response(`Failed to get chat: ${chaterror}`, {
-        status: 500,
+    if (!session || !session.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
       });
-    if (!chat) return new Response("Chat not found", { status: 404 });
+    }
 
-    const { data: votes, error: voteError } = await getVotesByChatId({
-      id: chatId,
+    // Get chat data with proper error handling
+    const {data:chatResult,error:chatResultError} = await getChatById({ id: chatId });
+
+    if (!chatResult) {
+      console.error("Failed to get chat:", chatResultError);
+      return new Response(JSON.stringify({ error: "Chat not found" }), {
+        status: 404,
+      });
+    }
+
+    // Get votes
+    const {data:votesResult,error} = await getVotesByChatId({ id: chatId });
+    console.log("votesResult",votesResult);
+
+    if (!votesResult) {
+      console.error("Failed to get votes:",error);
+      return new Response(
+        JSON.stringify({ error: "Failed to retrieve votes" }),
+        { status: 500 }
+      );
+    }
+
+    return new Response(JSON.stringify({ votes: votesResult }), {
+      status: 200,
     });
-
-    if (voteError)
-      return new Response(`Failed to get votes: ${voteError}`, {
-        status: 500,
-      });
-
-    return Response.json(votes, { status: 200 });
   } catch (error) {
-    console.error(`Error in GET: ${error}`);
-    return new Response(`Internal Server Error: ${error}`, {
+    console.error(`Error in GET:`, error);
+    return new Response(JSON.stringify({ error: `Internal Server Error` }), {
       status: 500,
     });
   }
@@ -42,30 +64,47 @@ export async function PATCH(request: Request) {
       await request.json();
 
     if (!chatId || !messageId || !type) {
-      return new Response("messageId and type are required", { status: 400 });
+      return new Response(
+        JSON.stringify({ error: "messageId, chatId, and type are required" }),
+        { status: 400 }
+      );
     }
 
-    const { data: chat, error: chaterror } = await getChatById({
-      id: chatId,
+    const session = await auth();
+
+    if (!session || !session.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    // Verify chat exists and user has access
+    const {data:chatResult,error} = await getChatById({ id: chatId });
+
+    if (!chatResult) {
+      console.error("Failed to get chat:", error);
+      return new Response(JSON.stringify({ error: "Chat not found" }), {
+        status: 404,
+      });
+    }
+
+    // Submit the vote
+    await voteMessage({
+      chatId,
+      messageId,
+      type,
     });
 
-    if (chaterror)
-      return new Response(`Failed to get chat: ${chaterror}`, {
-        status: 500,
-      });
-    if (!chat) return new Response("Chat not found", { status: 404 });
+    
 
-    await voteMessage({ chatId, messageId, type });
-
-    return new Response("Message voted", { status: 200 });
+    return new Response(
+      JSON.stringify({ message: "Vote recorded successfully" }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error in PATCH:", error);
-    return new Response(
-      JSON.stringify({ error: `Failed to process vote: ${error}` }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: "Failed to process vote" }), {
+      status: 500,
+    });
   }
 }

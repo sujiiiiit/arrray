@@ -37,12 +37,17 @@ export function DocumentPreview({
 }: DocumentPreviewProps) {
   const { artifact, setArtifact } = useArtifact();
 
-  const { data: documents, isLoading: isDocumentsFetching } = useSWR<
-    Array<Document>
+  const { data, isLoading: isDocumentsFetching } = useSWR<
+    { documents: Array<Document> }
   >(result ? `/api/document?id=${result.id}` : null, fetcher);
-
+  
+  const documents = data?.documents;
   const previewDocument = useMemo(() => documents?.[0], [documents]);
   const hitboxRef = useRef<HTMLDivElement>(null!)
+
+  useEffect(() => {
+    console.log("Document data:", { data, loading: isDocumentsFetching });
+  }, [data, isDocumentsFetching]);
 
   useEffect(() => {
     const boundingBox = hitboxRef.current?.getBoundingClientRect();

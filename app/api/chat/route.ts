@@ -1,3 +1,5 @@
+'use server'
+
 import {
   UIMessage,
   appendResponseMessages,
@@ -32,7 +34,7 @@ import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { isProductionEnvironment } from "@/lib/constants";
 import { myProvider } from "@/lib/ai/providers";
 
-export const maxDuration = 60;
+// export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
@@ -49,45 +51,65 @@ export async function POST(request: Request) {
     const session = await auth();
 
     if (!session || !session.user || !session.user.id) {
-      return new Response("Unauthorized", { status: 401 });
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userMessage = getMostRecentUserMessage(messages);
 
     if (!userMessage) {
-      return new Response("No user message found", { status: 400 });
+      return Response.json({ error: "No user message found" }, { status: 400 });
     }
 
-    const { data: chat, error: chatError } = await getChatById({ id });
+    // Get chat data - Note: performSupabaseAction returns {data, success, error}
+    const { data: chatResult, error } = await getChatById({ id });
 
-    if (chatError) {
-     console.error(chatError);
+    if (!chatResult) {
+      console.error("Error getting chat:", error);
     }
-    
-    if (!chat?.data) {
+
+    // This is chatResult.data, not chat.data as in your original code
+    let chatData = chatResult;
+    console.log("chatData:", chatData);
+
+    if (!chatData) {
       const title = await generateTitleFromUserMessage({
         message: userMessage,
       });
 
-      await saveChat({ id, userId: session.user.id, title });
-    } else {
-      if (chat.data.userId !== session.user.id) {
-        return new Response("Unauthorized", { status: 401 });
+      const { data: saveResult, error: saveResultError } = await saveChat({
+        id,
+        userId: session.user.id,
+        title,
+      });
+
+      if (saveResult) {
+        chatData = saveResult;
+      } else {
+        console.error("Error saving chat:", saveResultError);
       }
+    } else if (chatData.userId !== session.user.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await saveMessages({
-      messages: [
-        {
-          chatId: id,
-          id: userMessage.id,
-          role: "user",
-          parts: userMessage.parts,
-          attachments: userMessage.experimental_attachments ?? [],
-          createdAt: new Date(),
-        },
-      ],
-    });
+    const { data: saveMessagesData, error: saveMessageError } =
+      await saveMessages({
+        messages: [
+          {
+            chatId: id,
+            id: userMessage.id,
+            role: "user",
+            parts: userMessage.parts,
+            attachments: userMessage.experimental_attachments ?? [],
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+    if (saveMessagesData) {
+      console.log("Messages saved successfully");
+    } else {
+      console.error("Error saving messages:", saveMessageError);
+    }
 
     return createDataStreamResponse({
       execute: (dataStream) => {
@@ -128,19 +150,20 @@ export async function POST(request: Request) {
                   responseMessages: response.messages,
                 });
 
-                await saveMessages({
-                  messages: [
-                    {
-                      id: assistantId,
-                      chatId: id,
-                      role: assistantMessage.role,
-                      parts: assistantMessage.parts,
-                      attachments:
-                        assistantMessage.experimental_attachments ?? [],
-                      createdAt: new Date(),
-                    },
-                  ],
-                });
+                  await saveMessages({
+                    messages: [
+                      {
+                        id: assistantId,
+                        chatId: id,
+                        role: assistantMessage.role,
+                        parts: assistantMessage.parts,
+                        attachments:
+                          assistantMessage.experimental_attachments ?? [],
+                        createdAt: new Date(),
+                      },
+                    ],
+                  });
+
               } catch (_error) {
                 console.error(`Failed to save assistant message: ${_error}`);
               }
@@ -158,14 +181,17 @@ export async function POST(request: Request) {
           sendReasoning: true,
         });
       },
-      onError: () => {
-        return "Oops, an error occured!";
+      onError: (error) => {
+        console.error("Stream error:", error);
+        return "Oops, an error occurred!";
       },
     });
   } catch (error) {
-    return new Response(`An error occurred while processing your request!:${error}`, {
-      status: 404,
-    });
+    console.error("POST handler error:", error);
+    return Response.json(
+      { error: `An error occurred while processing your request: ${error}` },
+      { status: 500 }
+    );
   }
 }
 
@@ -174,28 +200,42 @@ export async function DELETE(request: Request) {
   const id = searchParams.get("id");
 
   if (!id) {
-    return new Response("Not Found", { status: 404 });
+    return Response.json({ error: "Missing chat ID" }, { status: 400 });
   }
 
   const session = await auth();
 
   if (!session || !session.user) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const chat = await getChatById({ id });
+    const result = await getChatById({ id });
 
-    if (!chat || !chat.data || chat.data.userId !== session.user.id) {
-      return new Response("Unauthorized", { status: 401 });
+    // Properly handle the return value from performSupabaseAction
+    if (!result.success || !result.data) {
+      console.error("Chat not found:", result.error);
+      return Response.json({ error: "Chat not found" }, { status: 404 });
     }
 
-    await deleteChatById({ id });
+    if (result.data.userId !== session.user.id) {
+      console.error("Chat access denied");
+      return Response.json({ error: "Access denied" }, { status: 403 });
+    }
 
-    return new Response("Chat deleted", { status: 200 });
+    const deleteResult = await deleteChatById({ id });
+
+    if (!deleteResult.success) {
+      console.error("Chat deletion error:", deleteResult.error);
+      return Response.json({ error: "Failed to delete chat" }, { status: 500 });
+    }
+
+    return Response.json({ message: "Chat deleted" }, { status: 200 });
   } catch (error) {
-    return new Response(`An error occurred while processing your request!:${error}`, {
-      status: 500,
-    });
+    console.error("Unexpected error:", error);
+    return Response.json(
+      { error: `An error occurred: ${error}` },
+      { status: 500 }
+    );
   }
 }

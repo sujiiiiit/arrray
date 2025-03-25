@@ -35,22 +35,22 @@ function PureArtifactMessages({
       ref={messagesContainerRef}
       className="flex flex-col gap-4 h-full items-center overflow-y-scroll px-4 pt-20"
     >
-      {messages.map((message, index) => (
-        <PreviewMessage
-          chatId={chatId}
-          key={message.id}
-          message={message}
-          isLoading={status === 'streaming' && index === messages.length - 1}
-          vote={
-            votes
-              ? votes.find((vote) => vote.messageId === message.id)
-              : undefined
-          }
-          setMessages={setMessages}
-          reload={reload}
-          isReadonly={isReadonly}
-        />
-      ))}
+   {messages.map((message, index) => (
+  <PreviewMessage
+    chatId={chatId}
+    key={message.id}
+    message={message}
+    isLoading={status === 'streaming' && index === messages.length - 1}
+    vote={
+      votes && votes.length>0 
+        ? votes.find((vote) => vote.messageId === message.id)
+        : undefined
+    }
+    setMessages={setMessages}
+    reload={reload}
+    isReadonly={isReadonly}
+  />
+))}
 
       <div
         ref={messagesEndRef}

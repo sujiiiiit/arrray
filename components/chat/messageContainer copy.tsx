@@ -5,11 +5,14 @@ import {
   useCallback,
   type Dispatch,
   type SetStateAction,
+  type ChangeEvent,
   memo,
-} from "react";
+} from 'react';
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useContentEditable } from "@/hooks/useContentEditable";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { motion, AnimatePresence } from "framer-motion";
+import Attachments from "@/components/chat/attachments";
 import FindProjects, { Project } from "@/components/chat/projects/FindProject";
 import {
   DropdownMenu,
@@ -17,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -31,14 +35,11 @@ import {
   toggleSearch,
   selectProject,
 } from "@/store/inputSlice";
-import { useLocalStorage, useWindowSize } from "usehooks-ts";
-import type { Attachment, UIMessage } from "ai";
-import { UseChatHelpers } from "@ai-sdk/react";
-import { Input } from "../ui/input";
-import { useFileUpload } from "@/hooks/useFileUpload";
-import Attachments from "./attachments";
 import { clearAllFiles } from "@/store/uploadSlice";
-
+import { UseChatHelpers } from '@ai-sdk/react';
+import { useLocalStorage, useWindowSize } from 'usehooks-ts';
+import type { Attachment, Message, UIMessage } from 'ai';
+import { useChat } from '@ai-sdk/react';
 
 const MessageContainer = ({
   chatId,
@@ -51,143 +52,118 @@ const MessageContainer = ({
   messages,
   setMessages,
   append,
-  handleSubmit: aiHandleSubmit,
+  handleSubmit:newSubmit,
   className,
 }: {
   chatId: string;
-  input: UseChatHelpers["input"];
-  setInput: UseChatHelpers["setInput"];
-  status: UseChatHelpers["status"];
+  input: UseChatHelpers['input'];
+  setInput: UseChatHelpers['setInput'];
+  status: UseChatHelpers['status'];
   stop: () => void;
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<UIMessage>;
-  setMessages: UseChatHelpers["setMessages"];
-  append: UseChatHelpers["append"];
-  handleSubmit: UseChatHelpers["handleSubmit"];
+  setMessages: UseChatHelpers['setMessages'];
+  append: UseChatHelpers['append'];
+  handleSubmit: UseChatHelpers['handleSubmit'];
   className?: string;
 }) => {
   const inputState = useAppSelector(selectInput);
+  // const uploadedImages = useAppSelector(selectImageFiles);
   const dispatch = useAppDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { width } = useWindowSize();
 
-  const { files, fileInputRef, handleFileSelect, handlePaste, removeFile } =
-      useFileUpload();
-
-  // Local storage for input persistence
-  const [localStorageInput, setLocalStorageInput] = useLocalStorage(
-    "input",
-    ""
-  );
-
-
-
-  // Sync text input with Redux and AI SDK
-  const handleTextChange = useCallback(
-    (text: string) => {
-      setInput(text);
+  // Synchronize text input with Redux
+  const handleTextChange = (text: string) => {
+    if (textAreaRef.current) {
+      textAreaRef.current.value = text;
       dispatch(setText(text));
-    },
-    [dispatch, setInput]
+    }
+  };
+
+  const [localStorageInput, setLocalStorageInput] = useLocalStorage(
+    'input',
+    '',
   );
 
-  // Initialize useContentEditable FIRST with a simple onSubmit function that we'll override later
-  const { contentEditableRef, hasContent, textAreaRef, clearContent } =
-  useContentEditable({
-    onSubmit: () => {},
-    onChange: handleTextChange,
-  });
-
-  // Now define submitMessage with access to clearContent
-  const submitMessage = useCallback(() => {
-    const content = textAreaRef.current?.value || "";
-
-    // Skip if empty input
-    if (!content.trim()) return;
-
-    // Update route with chatId
-    window.history.replaceState({}, "", `/chat/${chatId}`);
-
-    // Submit through AI SDK
-    aiHandleSubmit(undefined);
-
-    // Clear input in all places
-    clearContent();
-    setInput("");
-    dispatch(setText(""));
-    setLocalStorageInput("");
-
-    // Update timestamp for analytics
-    dispatch(updateTimestamp());
-
-    if (files.length > 0) {
-          // Import and use the clearAllFiles action from uploadSlice
-          dispatch(clearAllFiles());
-        }
-
-    // Focus input after submission on desktop
-    if (width && width > 768 && contentEditableRef.current) {
-      contentEditableRef.current.focus();
-    }
-  }, [
-    aiHandleSubmit,
-    chatId,
-    clearContent,
-    dispatch,
-    setInput,
-    setLocalStorageInput,
-    width,
-  ]);
-
-  // Override the onSubmit function of the contentEditable
   useEffect(() => {
-    if (contentEditableRef.current) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
-          e.preventDefault();
-          if (hasContent) {
-            submitMessage();
-          }
-        }
-      };
-
-      contentEditableRef.current.addEventListener("keydown", handleKeyDown);
-      return () => {
-        contentEditableRef.current?.removeEventListener(
-          "keydown",
-          handleKeyDown
-        );
-      };
+    if (textAreaRef.current) {
+      const domValue = textAreaRef.current.value;
+      // Prefer DOM value over localStorage to handle hydration
+      const finalValue = domValue || localStorageInput || '';
+      setInput(finalValue);
+      dispatch(setText(finalValue));
     }
-  }, [hasContent, submitMessage]);
-
-  // Initialize input from localStorage on mount
-  useEffect(() => {
-    const finalValue = input || localStorageInput || "";
-    setInput(finalValue);
-    dispatch(setText(finalValue));
+    // Only run once after hydration
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update localStorage when input changes
   useEffect(() => {
     setLocalStorageInput(input);
   }, [input, setLocalStorageInput]);
 
+  const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    // Get content from textarea which is synced with contentEditable
+    const content = textAreaRef.current?.value || "";
+
+    // Create a submission object that includes text and files
+    const hasFiles = files.length > 0;
+
+    // Add the content to the input slice
+    if (textAreaRef.current) {
+      textAreaRef.current.value = "";
+    }
+    if (contentEditableRef.current) {
+      contentEditableRef.current.innerText = "";
+      clearContent();
+    }
+
+    setTimeout(() => {
+      dispatch(setText(""));
+    }, 200);
+
+    // Update timestamp when message is sent
+    dispatch(updateTimestamp());
+
+    // Now log the complete input state after updates
+    console.log("Submit message:", content);
+    console.log("Files attached:", files.length > 0 ? files : "none");
+    console.log("Current input slice state:", inputState);
+
+    // Clear all files from Redux store
+    if (hasFiles) {
+      // Import and use the clearAllFiles action from uploadSlice
+      dispatch(clearAllFiles());
+    }
+  };
+
+  const submitForm = useCallback(() => {
+    window.history.replaceState({}, '', `/chat/${chatId}`);
+    newSubmit();
+    handleSubmit();
+    setLocalStorageInput('');
+  }, [handleSubmit,chatId,setLocalStorageInput]);
+
+
+  const { contentEditableRef, hasContent, textAreaRef, clearContent } =
+    useContentEditable({
+      onSubmit: submitForm,
+      onChange: handleTextChange,
+    });
+
+  const { files, fileInputRef, handleFileSelect, handlePaste, removeFile } =
+    useFileUpload();
+
   // Handle search toggle
-  const handleSearchToggle = useCallback(() => {
+  const handleSearchToggle = () => {
     dispatch(toggleSearch());
-  }, [dispatch]);
+  };
 
-  // Handle project selection
-  const handleProjectSelect = useCallback(
-    (project: Project) => {
-      console.log("Selected project:", project);
-      dispatch(selectProject(project.id as string));
-    },
-    [dispatch]
-  );
-
+  // Handle file upload button click
   const handleFileUpload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -203,30 +179,37 @@ const MessageContainer = ({
   };
 
   // Handle keyboard shortcuts
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Ctrl/Cmd+Enter to submit
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        e.preventDefault();
-        submitMessage();
-      }
-    },
-    [submitMessage]
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+V or Cmd+V is handled by default paste behavior
+    // But could add other shortcuts here
 
-  
+    // Example: Ctrl/Cmd+Enter to submit
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  const handleProjectSelect = (project: Project) => {
+    console.log("Selected project:", project);
+    dispatch(selectProject(project.id as string));
+  };
+
+
+ 
   return (
+    <>
     <AnimatePresence>
       <motion.div
         className="message-container w-full max-w-3xl sm:pb-4"
-        initial={{ y: 5, opacity: 0 }}
+                initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
         <form
           className="w-full"
           onSubmit={(e) => {
             e.preventDefault();
-            submitMessage();
+            submitForm();
           }}
         >
           <div className="relative z-[1] flex h-full max-w-full flex-1 flex-col">
@@ -241,6 +224,7 @@ const MessageContainer = ({
                       <Attachments files={files} onRemoveFile={removeFile} />
                     </div>
                   )}
+
                   <div className="flex flex-col justify-start">
                     <div className="flex min-h-[44px] items-start pl-1">
                       <div className="min-w-0 max-w-full flex-1">
@@ -248,8 +232,7 @@ const MessageContainer = ({
                           <textarea
                             className="hidden"
                             ref={textAreaRef}
-                            value={input}
-                            onChange={(e) => handleTextChange(e.target.value)}
+                            onChange={handleInput}
                           ></textarea>
                           <div
                             contentEditable="true"
@@ -258,8 +241,8 @@ const MessageContainer = ({
                             id="prompt-textarea"
                             data-virtualkeyboard="true"
                             ref={contentEditableRef}
-                            onKeyDown={handleKeyDown}
                             onPaste={handlePaste}
+                            onKeyDown={handleKeyDown}
                             onInput={() => {
                               // Keep textarea synced with contentEditable on any input
                               if (
@@ -323,11 +306,11 @@ const MessageContainer = ({
                                     </DropdownMenuTrigger>
                                   </TooltipTrigger>
                                   <TooltipContent side="bottom" align="center">
-                                    <p>Add options</p>
+                                    <p>Attach file</p>
                                   </TooltipContent>
 
                                   <DropdownMenuContent side="top" align="start">
-                                    {/* <DropdownMenuItem
+                                    <DropdownMenuItem
                                       id="toggle-dialog"
                                       onClick={() => dispatch(toggleDialog())}
                                     >
@@ -356,8 +339,9 @@ const MessageContainer = ({
                                         </svg>
                                       </span>
                                       <span>Choose from Project space</span>
-                                    </DropdownMenuItem> */}
-                                     <DropdownMenuItem
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
                                       onClick={handleFileUpload}
                                     >
                                       <span className="flex items-center justify-center text-color-secondary h-5 w-5">
@@ -460,63 +444,30 @@ const MessageContainer = ({
                         <code className="relative rounded">+ V to Paste</code>
                       </div>
                       <div className="min-w-9">
-                        {status == "ready" ? (
-                          <button
-                            type="button"
-                            onClick={submitMessage}
-                            className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                            disabled={!hasContent}
-                          >
-                            <div className="flex items-center justify-center">
-                              <svg
-                                width="32"
-                                height="32"
-                                viewBox="0 0 32 32"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="icon-2xl"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                                  fill="currentColor"
-                                ></path>
-                              </svg>
-                            </div>
-                          </button>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.preventDefault();
-                                stop();
-                                setMessages((messages) => messages);
-                              }}
-                              className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
-                              disabled={!hasContent}
+                        <button
+                          type="button"
+                          onClick={submitForm}
+                          className="relative flex h-9 items-center justify-center rounded-full bg-black text-white transition-all focus-visible:outline-none focus-visible:outline-black disabled:text-gray-50 disabled:opacity-30 can-hover:hover:opacity-70 dark:bg-white dark:text-black w-9"
+                          disabled={!hasContent && files.length === 0}
+                        >
+                          <div className="flex items-center justify-center">
+                            <svg
+                              width="32"
+                              height="32"
+                              viewBox="0 0 32 32"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="icon-2xl"
                             >
-                              <div className="flex items-center justify-center">
-                                <svg
-                                  width="32"
-                                  height="32"
-                                  viewBox="0 0 32 32"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="icon-2xl"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    clipRule="evenodd"
-                                    d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                                    fill="currentColor"
-                                  ></path>
-                                </svg>
-                              </div>
-                            </button>
-                          </>
-                        )}
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
+                                fill="currentColor"
+                              ></path>
+                            </svg>
+                          </div>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -525,8 +476,10 @@ const MessageContainer = ({
             </div>
           </div>
         </form>
+   
       </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 };
 

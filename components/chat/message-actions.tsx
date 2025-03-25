@@ -68,7 +68,7 @@ export function PureMessageActions({
             <Button
               data-testid="message-upvote"
               className="py-1 px-2 h-fit text-muted-foreground !pointer-events-auto"
-              disabled={vote?.isUpvoted}
+              disabled={vote?.isUpvoted === true}
               variant="outline"
               onClick={async () => {
                 const upvote = fetch('/api/vote', {
@@ -86,12 +86,13 @@ export function PureMessageActions({
                     mutate<Array<Vote>>(
                       `/api/vote?chatId=${chatId}`,
                       (currentVotes) => {
-                        if (!currentVotes) return [];
-
-                        const votesWithoutCurrent = currentVotes.filter(
+                        // Ensure currentVotes is an array
+                        const votesArray = Array.isArray(currentVotes) ? currentVotes : [];
+                        
+                        const votesWithoutCurrent = votesArray.filter(
                           (vote) => vote.messageId !== message.id,
                         );
-
+                        
                         return [
                           ...votesWithoutCurrent,
                           {
@@ -103,6 +104,7 @@ export function PureMessageActions({
                       },
                       { revalidate: false },
                     );
+                    
 
                     return 'Upvoted Response!';
                   },
@@ -122,7 +124,7 @@ export function PureMessageActions({
               data-testid="message-downvote"
               className="py-1 px-2 h-fit text-muted-foreground !pointer-events-auto"
               variant="outline"
-              disabled={vote && !vote.isUpvoted}
+              disabled={vote?.isUpvoted === false}
               onClick={async () => {
                 const downvote = fetch('/api/vote', {
                   method: 'PATCH',
@@ -139,24 +141,25 @@ export function PureMessageActions({
                     mutate<Array<Vote>>(
                       `/api/vote?chatId=${chatId}`,
                       (currentVotes) => {
-                        if (!currentVotes) return [];
-
-                        const votesWithoutCurrent = currentVotes.filter(
+                        // Ensure currentVotes is an array
+                        const votesArray = Array.isArray(currentVotes) ? currentVotes : [];
+                        
+                        const votesWithoutCurrent = votesArray.filter(
                           (vote) => vote.messageId !== message.id,
                         );
-
+                        
                         return [
                           ...votesWithoutCurrent,
                           {
                             chatId,
                             messageId: message.id,
-                            isUpvoted: false,
+                            isUpvoted: true,
                           },
                         ];
                       },
                       { revalidate: false },
                     );
-
+                    
                     return 'Downvoted Response!';
                   },
                   error: 'Failed to downvote response.',

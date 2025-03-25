@@ -69,8 +69,6 @@ const App = ({
 
   // Create an adapter function that accepts File[] and passes it to handleFileDrop
   const handleFilesDropAdapter = (files: File[]) => {
-    // Create a minimal synthetic event or process the files directly
-    // depending on what your handleFileDrop actually needs
     const event = {
       dataTransfer: { files },
       preventDefault: () => {},
@@ -93,7 +91,19 @@ const App = ({
           isReadonly={isReadonly}
           isArtifactVisible={isArtifactVisible}
         />
-        <MessageContainer />
+        <MessageContainer 
+        chatId={id}
+        input={input}
+        setInput={setInput}
+        handleSubmit={handleSubmit}
+        status={status}
+        stop={stop}
+        attachments={attachments}
+        setAttachments={setAttachments}
+        messages={messages}
+        setMessages={setMessages}
+        append={append}
+        />
         {/* <Imports /> */}
       </div>
       <DrawerDialogDemo />

@@ -13,7 +13,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 import type { Document, Vote } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
-import { MultimodalInput } from "@/components/artifact/multimodal-input";
+import  MultimodalInput from "@/components/chat/messageContainer";
 import { Toolbar } from "./toolbar";
 import { VersionFooter } from "@/components/artifact/version-footer";
 import { ArtifactActions } from "./artifact-actions";
