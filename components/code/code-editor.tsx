@@ -58,7 +58,7 @@ function PureCodeEditor({ height,content, onSaveContent, status }: EditorProps) 
       onMount={handleEditorMount}
       options={{
         automaticLayout: true,
-        minimap: { enabled: false },
+        minimap: { enabled: true },
       }}
     />
   );

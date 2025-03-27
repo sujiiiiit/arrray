@@ -29,6 +29,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import { Button } from "../ui/button";
+import { Play } from "../icons";
 
 export const artifactDefinitions = [codeArtifact];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
@@ -245,7 +253,12 @@ function PureArtifact({
       }
     }
   }, [artifact.documentId, artifactDefinition, setMetadata]);
+  const [activeTab, setActiveTab] = useState(0);
 
+  const tabs = [
+    { id: 0, label: "Code" },
+    { id: 1, label: "Preview" },
+  ];
   return (
     <AnimatePresence>
       {artifact.isVisible && (
@@ -338,7 +351,7 @@ function PureArtifact({
           )}
 
           <motion.div
-            className="fixed bg-vs h-dvh flex flex-col overflow-y-hidden md:border-l dark:border-zinc-700 border-zinc-200"
+            className="fixed bg-vs h-dvh flex flex-col overflow-y-hidden md:border-l shadow-lg"
             initial={
               isMobile
                 ? {
@@ -404,59 +417,98 @@ function PureArtifact({
               },
             }}
           >
-            <div className="px-3 flex flex-row justify-between items-center   border-b">
-              <div className="flex flex-row gap-2 items-center h-12">
-                <div className="flex items-center h-full">
-                  <div className="font-medium">{artifact.title}</div>
+            <SidebarProvider className="block overflow-hidden">
+              <div className="w-full h-11 px-3 flex flex-row justify-between items-center   border-b">
+                <div className="flex items-center h-full gap-3 w-full max-w-40">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarTrigger />
+                    </TooltipTrigger>
+                    <TooltipContent
+                      variant="default"
+                      size="xs"
+                      shape="md"
+                      side="bottom"
+                    >
+                      Sidebar
+                    </TooltipContent>
+                  </Tooltip>
+                    <div className="relative flex bg-transparent w-full max-w-xs border rounded-full h-8 p-1">
+                      {tabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`relative z-10 w-1/2 text-nowrap text-xs text-center layer-transition rounded-full ${
+                            activeTab === tab.id
+                              ? "text-blue-500 dark:text-[#48AAFF]"
+                              : "text-color-primary"
+                          }`}
+                        >
+                          {tab.label}
+                          {activeTab === tab.id && (
+                            <motion.div
+                              layoutId="tab-indicator"
+                              className="absolute inset-0  bg-blue-100   dark:bg-blue-500/20  text-[13px]  rounded-full"
+                              initial={false}
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 30,
+                              }}
+                              style={{ zIndex: -1 }}
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  
+                </div>
 
+                <div className="flex flex-row  flex-1 justify-center gap-2 items-center h-12">
+                  <div className="flex items-center h-full">
+                    <div className="text-[13px] flex gap-2 flex-nowrap">
+                      <span className="">{artifact.title}</span>{" "}
+                      <code className="bg-accent px-1 rounded-md font-mono">
+                        V{currentVersionIndex + 2}
+                      </code>
+                    </div>
+                  </div>
+                </div>
+
+                {/* <ArtifactActions
+              /> */}
+                <div className="h-full flex items-center">
+                  <ArtifactCloseButton />
                 </div>
               </div>
 
-              {/* <ArtifactActions
-              /> */}
-              <ArtifactCloseButton />
-            </div>
-            <div>
-              <SidebarProvider>
+              <div className=" relative flex h-full flex-row flex-grow-0 bg-vs-code overflow-hidden w-dvw md:max-w-[calc(100dvw_-_400px)]">
                 <AppSidebar />
 
                 <SidebarInset>
-                  <header className="px-2 flex items-center py-1 bg-vs-code">
-                    <SidebarTrigger />
-                  </header>
-                  <div className="bg-vs-code h-full overflow-y-scroll !max-w-full items-center">
-                    <artifactDefinition.content
-                      title={artifact.title}
-                      content={
-                        isCurrentVersion
-                          ? artifact.content
-                          : getDocumentContentById(currentVersionIndex)
-                      }
-                      mode={mode}
-                      status={artifact.status}
-                      currentVersionIndex={currentVersionIndex}
-                      onSaveContent={saveContent}
-                      isInline={false}
-                      isCurrentVersion={isCurrentVersion}
-                      getDocumentContentById={getDocumentContentById}
-                      isLoading={isDocumentsFetching && !artifact.content}
-                      metadata={metadata}
-                      setMetadata={setMetadata}
-                    />
-                  </div>
+                  <header className="px-6 flex items-center py-1 bg-vs-code text-xs"></header>
+                  <artifactDefinition.content
+                    title={artifact.title}
+                    content={
+                      isCurrentVersion
+                        ? artifact.content
+                        : getDocumentContentById(currentVersionIndex)
+                    }
+                    mode={mode}
+                    status={artifact.status}
+                    currentVersionIndex={currentVersionIndex}
+                    onSaveContent={saveContent}
+                    isInline={false}
+                    isCurrentVersion={isCurrentVersion}
+                    getDocumentContentById={getDocumentContentById}
+                    isLoading={isDocumentsFetching && !artifact.content}
+                    metadata={metadata}
+                    setMetadata={setMetadata}
+                  />
+                  <footer>hello how are ou</footer>
                 </SidebarInset>
-              </SidebarProvider>
-            </div>
-
-            <AnimatePresence>
-              {!isCurrentVersion && (
-                <VersionFooter
-                  currentVersionIndex={currentVersionIndex}
-                  documents={documents}
-                  handleVersionChange={handleVersionChange}
-                />
-              )}
-            </AnimatePresence>
+              </div>
+            </SidebarProvider>
           </motion.div>
         </motion.div>
       )}

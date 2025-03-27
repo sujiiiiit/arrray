@@ -13,6 +13,20 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipArrow = TooltipPrimitive.Arrow;
 
+const CustomArrow = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Arrow>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Arrow>
+>(({ className, ...props }, ref) => (
+  < TooltipPrimitive.Arrow
+    ref={ref}
+    className={cn("bg-white", className)}
+    {...props}
+  />
+));
+CustomArrow.displayName = "CustomArrow";
+
+
+
 const tooltipContentVariants = cva(
   "z-50 overflow-hidden border text-sm animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
   {
@@ -27,6 +41,7 @@ const tooltipContentVariants = cva(
       },
       size: {
         default: "px-3 py-1 ",
+        xs: "px-2 py-0.5 text-xs",
         sm: "px-2 py-1 text-xs",
         lg: "px-4 py-2",
       },

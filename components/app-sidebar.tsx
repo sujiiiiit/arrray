@@ -1,11 +1,11 @@
-import * as React from "react"
-import { ChevronRight, File, Folder } from "lucide-react"
+import * as React from "react";
+import { ChevronRight } from "lucide-react";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +18,9 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { ScrollArea } from "./ui/scroll-area";
+import { Folder, FolderOpen,NormalFileIcon } from "./icons";
 
 // This is sample data.
 const data = {
@@ -62,54 +64,60 @@ const data = {
     "package.json",
     "README.md",
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
-      <SidebarContent>
-       
-        <SidebarGroup>
-          <SidebarGroupLabel>Files</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {data.tree.map((item, index) => (
-                <Tree key={index} item={item} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarRail />
+    <Sidebar className="top-11" {...props}>
+      <ScrollArea className="h-[calc(100vh_-_2.75rem)]">
+        <SidebarContent className="flex flex-col ">
+          <SidebarGroup>
+            <SidebarGroupLabel>Files</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {data.tree.map((item, index) => (
+                  <Tree key={index} item={item} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </ScrollArea>
+      {/* <SidebarRail /> */}
     </Sidebar>
-  )
+  );
 }
 
 function Tree({ item }: { item: string | any[] }) {
-  const [name, ...items] = Array.isArray(item) ? item : [item]
+  const [name, ...items] = Array.isArray(item) ? item : [item];
+  let defaultOpen = name === "components" || name === "ui";
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
   if (!items.length) {
     return (
       <SidebarMenuButton
         isActive={name === "button.tsx"}
-        className="data-[active=true]:bg-muted data-[active=true]:border border-light"
+        className=" data-[active=true]:bg-blue-100 data-[active=true]:border-blue-100 transition-all data-[active=true]:text-blue-500 dark:data-[active=true]:text-[#48AAFF] dark:data-[active=true]:bg-blue-500/20 dark:data-[active=true]:border-blue-500/20 text-[13px] text-color-secondary"
       >
-        <File />
+        <NormalFileIcon />
         {name}
       </SidebarMenuButton>
-    )
+    );
   }
 
   return (
     <SidebarMenuItem>
       <Collapsible
-        className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
-        defaultOpen={name === "components" || name === "ui"}
+        className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90 text-[13px] text-color-secondary"
+        defaultOpen={defaultOpen}
+        onOpenChange={(isOpen) => {
+          setIsOpen(isOpen);
+        }}
       >
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton>
+          <SidebarMenuButton className="text-[13px] text-color-secondary">
             <ChevronRight className="transition-transform" />
-            <Folder />
+            {isOpen ? <FolderOpen  size={16} /> : <Folder size={16} />}
             {name}
           </SidebarMenuButton>
         </CollapsibleTrigger>
@@ -122,5 +130,5 @@ function Tree({ item }: { item: string | any[] }) {
         </CollapsibleContent>
       </Collapsible>
     </SidebarMenuItem>
-  )
+  );
 }

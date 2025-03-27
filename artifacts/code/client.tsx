@@ -1,5 +1,6 @@
 import { Artifact } from "@/components/code/create-artifact";
 import { CodeEditor } from "@/components/code/code-editor";
+import { SidebarProvider } from "@/components/ui/sidebar";  
 
 interface Metadata {
   // Console-related fields removed
@@ -39,10 +40,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
   },
   content: (props) => {
     return (
-      <div className="px-1">
-        <CodeEditor height="calc(100vh - 4rem)" {...props} />
-        {/* <Editor/> */}
-      </div>
+        <CodeEditor  height="calc(100vh - 2.75rem)" {...props} />
     );
   },
 
