@@ -64,6 +64,19 @@
     --layer-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --tabs-transition: 0.2s ease-in-out;
     --text-blue: rgb(59 130 246);
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* vs code  */
+
+    --vscode-code-background: #fff;
+    --vscode-background: #fff;
   }
   .dark {
     --background: 0, 0%, 5%;
@@ -120,6 +133,19 @@
     --message-container: rgba(31, 31, 31);
     --dropdown: rgb(33, 33, 33, 0.4);
     --text-blue: rgb(147, 197, 253);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* vs code  */
+
+    --vscode-code-background: #1e1e1e;
+    --vscode-background: #181818;
   }
 }
 
@@ -167,8 +193,6 @@
   scrollbar-color: hsl(var(--accent)) transparent;
 }
 
-
-
 .shiny-text {
   color: #b5b5b5a4; /* Adjust this color to change intensity/style */
   background: linear-gradient(
@@ -197,3 +221,11 @@
   animation: none;
 }
 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

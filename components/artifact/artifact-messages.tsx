@@ -30,8 +30,9 @@ function PureArtifactMessages({
   return (
     <ScrollArea
       ref={messagesContainerRef}
-      className="flex flex-col gap-4 h-full items-center py-6 px-2 scrollbar"
+      className="flex flex-col flex-1"
     >
+      <div className="flex flex-col gap-4 h-full items-center py-6 px-2 scrollbar">
       {messages.map((message, index) => (
         <PreviewMessage
           chatId={chatId}
@@ -48,6 +49,7 @@ function PureArtifactMessages({
         ref={messagesEndRef}
         className="shrink-0 min-w-[24px] min-h-[24px]"
       />
+      </div>
     </ScrollArea>
   );
 }

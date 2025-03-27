@@ -13,7 +13,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 import type { Document } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
-import  MultimodalInput from "@/components/chat/messageContainer";
+import MultimodalInput from "@/components/chat/messageContainer";
 import { VersionFooter } from "@/components/artifact/version-footer";
 import { ArtifactActions } from "./artifact-actions";
 import { ArtifactCloseButton } from "./artifact-close-button";
@@ -23,6 +23,12 @@ import { useArtifact } from "@/hooks/use-artifact";
 import { codeArtifact } from "@/artifacts/code/client";
 import equal from "fast-deep-equal";
 import { UseChatHelpers } from "@ai-sdk/react";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export const artifactDefinitions = [codeArtifact];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
@@ -269,7 +275,7 @@ function PureArtifact({
 
           {!isMobile && (
             <motion.div
-              className="relative w-[400px] bg-muted dark:bg-background h-dvh shrink-0"
+              className="relative w-[400px] bg-background h-dvh shrink-0"
               initial={{ opacity: 0, x: 10, scale: 1 }}
               animate={{
                 opacity: 1,
@@ -332,7 +338,7 @@ function PureArtifact({
           )}
 
           <motion.div
-            className="fixed dark:bg-[#1e1e1e] bg-background h-dvh flex flex-col overflow-y-scroll md:border-l dark:border-zinc-700 border-zinc-200"
+            className="fixed bg-vs h-dvh flex flex-col overflow-y-hidden md:border-l dark:border-zinc-700 border-zinc-200"
             initial={
               isMobile
                 ? {
@@ -398,58 +404,48 @@ function PureArtifact({
               },
             }}
           >
-            <div className="p-2 flex flex-row justify-between items-start h-16">
-              <div className="flex flex-row gap-4 items-start">
-                <ArtifactCloseButton />
-
-                <div className="flex flex-col">
+            <div className="px-3 flex flex-row justify-between items-center   border-b">
+              <div className="flex flex-row gap-2 items-center h-12">
+                <div className="flex items-center h-full">
                   <div className="font-medium">{artifact.title}</div>
 
-                  {isContentDirty ? (
-                    <div className="text-sm text-muted-foreground">
-                      Saving changes...
-                    </div>
-                  ) : document ? (
-                    <div className="text-sm text-muted-foreground">
-                      {`Updated ${formatDistance(
-                        new Date(document.createdAt),
-                        new Date(),
-                        {
-                          addSuffix: true,
-                        }
-                      )}`}
-                    </div>
-                  ) : (
-                    <div className="w-32 h-3 mt-2 dark:bg-[#1e1e1e] bg-background rounded-md animate-pulse" />
-                  )}
                 </div>
               </div>
 
-              <ArtifactActions
-              />
+              {/* <ArtifactActions
+              /> */}
+              <ArtifactCloseButton />
             </div>
+            <div>
+              <SidebarProvider>
+                <AppSidebar />
 
-            <div className="dark:bg-[#1e1e1e] bg-background h-full overflow-y-scroll !max-w-full items-center">
-              <artifactDefinition.content
-                title={artifact.title}
-                content={
-                  isCurrentVersion
-                    ? artifact.content
-                    : getDocumentContentById(currentVersionIndex)
-                }
-                mode={mode}
-                status={artifact.status}
-                currentVersionIndex={currentVersionIndex}
-                onSaveContent={saveContent}
-                isInline={false}
-                isCurrentVersion={isCurrentVersion}
-                getDocumentContentById={getDocumentContentById}
-                isLoading={isDocumentsFetching && !artifact.content}
-                metadata={metadata}
-                setMetadata={setMetadata}
-              />
-
-             
+                <SidebarInset>
+                  <header className="px-2 flex items-center py-1 bg-vs-code">
+                    <SidebarTrigger />
+                  </header>
+                  <div className="bg-vs-code h-full overflow-y-scroll !max-w-full items-center">
+                    <artifactDefinition.content
+                      title={artifact.title}
+                      content={
+                        isCurrentVersion
+                          ? artifact.content
+                          : getDocumentContentById(currentVersionIndex)
+                      }
+                      mode={mode}
+                      status={artifact.status}
+                      currentVersionIndex={currentVersionIndex}
+                      onSaveContent={saveContent}
+                      isInline={false}
+                      isCurrentVersion={isCurrentVersion}
+                      getDocumentContentById={getDocumentContentById}
+                      isLoading={isDocumentsFetching && !artifact.content}
+                      metadata={metadata}
+                      setMetadata={setMetadata}
+                    />
+                  </div>
+                </SidebarInset>
+              </SidebarProvider>
             </div>
 
             <AnimatePresence>

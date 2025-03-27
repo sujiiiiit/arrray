@@ -35,7 +35,7 @@ function PureDocumentToolResult({
   return (
     <button
       type="button"
-      className="bg-background cursor-pointer border py-2 px-3 rounded-xl w-fit flex flex-row gap-3 items-start"
+      className="bg-accent cursor-pointer border py-2 px-3 rounded-xl w-fit flex flex-row gap-3 items-center justify-start"
       onClick={(event) => {
         if (isReadonly) {
           toast.error(

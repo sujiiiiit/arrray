@@ -1,8 +1,6 @@
 import { Artifact } from "@/components/code/create-artifact";
 import { CodeEditor } from "@/components/code/code-editor";
 
-
-
 interface Metadata {
   // Console-related fields removed
 }
@@ -43,6 +41,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
     return (
       <div className="px-1">
         <CodeEditor height="calc(100vh - 4rem)" {...props} />
+        {/* <Editor/> */}
       </div>
     );
   },

@@ -206,7 +206,7 @@ const PureDocumentHeader = ({
   kind: ArtifactKind;
   isStreaming: boolean;
 }) => (
-  <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-start sm:items-center justify-between dark:bg-[#1e1e1e] bg-background border-b-0 dark:border-zinc-700">
+  <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-start sm:items-center justify-between bg-vs-code border-b-0 dark:border-zinc-700">
     <div className="flex flex-row items-start sm:items-center gap-3">
       <div className="text-muted-foreground">
         {isStreaming ? (
@@ -236,7 +236,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
   const { artifact } = useArtifact();
 
   const containerClassName = cn(
-    "h-[257px] overflow-hidden border rounded-b-2xl dark:bg-[#1e1e1e] bg-background border-t-0 dark:border-zinc-700"
+    "h-[257px] overflow-hidden border rounded-b-2xl bg-vs-code border-t-0 dark:border-zinc-700"
   );
 
   const commonProps = {
