@@ -133,6 +133,9 @@ const MessageContainer = ({
     setInput,
     setLocalStorageInput,
     width,
+    files,
+    contentEditableRef,
+    textAreaRef,
   ]);
 
   // Override the onSubmit function of the contentEditable
@@ -155,14 +158,14 @@ const MessageContainer = ({
         );
       };
     }
-  }, [hasContent, submitMessage]);
+  }, [hasContent, submitMessage,contentEditableRef]);
 
   // Initialize input from localStorage on mount
   useEffect(() => {
     const finalValue = input || localStorageInput || "";
     setInput(finalValue);
     dispatch(setText(finalValue));
-  }, []);
+  }, [setInput, dispatch, localStorageInput, input]);
 
   // Update localStorage when input changes
   useEffect(() => {
@@ -225,7 +228,7 @@ const MessageContainer = ({
         >
           <div className="relative z-[1] flex h-full max-w-full flex-1 flex-col">
             <div className="group relative z-[1] flex w-full items-center">
-              <div className="w-full p-3">
+              <div className="w-full p-3 pt-0">
                 <div
                   id="composer-background"
                   className="flex w-full max-w-3xl cursor-text flex-col rounded-3xl px-3 py-1 duration-150 ease-in-out contain-inline-size motion-safe:transition-[color,background-color,border-color,text-decoration-color,fill,stroke,box-shadow] dark:shadow-none shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] has-[:focus]:shadow-[0_2px_12px_0px_rgba(0,0,0,0.04),_0_9px_9px_0px_rgba(0,0,0,0.01),_0_2px_5px_0px_rgba(0,0,0,0.06)] bg-token-main-surface-primary dark:bg-messageContainer transition-all border border-light dark:border-0 m-auto"

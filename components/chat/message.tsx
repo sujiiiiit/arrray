@@ -4,12 +4,11 @@ import type { UIMessage } from "ai";
 import cx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useState } from "react";
-import type { Vote } from "@/lib/db/schema";
 import { DocumentToolCall, DocumentToolResult } from "./document";
 import { PencilEditIcon, SparklesIcon } from "@/components/icons";
 import { Markdown } from "./markdown";
 import { MessageActions } from "@/components/chat/message-actions";
-import { PreviewAttachment } from "@/components/artifact/preview-attachment";
+// import { PreviewAttachment } from "@/components/artifact/preview-attachment";
 import equal from "fast-deep-equal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,6 @@ import ShinyText from "@/components/ui/ShinyText";
 const PurePreviewMessage = ({
   chatId,
   message,
-  vote,
   isLoading,
   setMessages,
   reload,
@@ -35,7 +33,6 @@ const PurePreviewMessage = ({
 }: {
   chatId: string;
   message: UIMessage;
-  vote: Vote | undefined;
   isLoading: boolean;
   setMessages: UseChatHelpers["setMessages"];
   reload: UseChatHelpers["reload"];
@@ -76,10 +73,11 @@ const PurePreviewMessage = ({
                 className="flex flex-row justify-end gap-2"
               >
                 {message.experimental_attachments.map((attachment) => (
-                  <PreviewAttachment
-                    key={attachment.url}
-                    attachment={attachment}
-                  />
+                  // <PreviewAttachment
+                  //   key={attachment.url}
+                  //   attachment={attachment}
+                  // />
+                  ""
                 ))}
               </div>
             )}
@@ -172,12 +170,6 @@ const PurePreviewMessage = ({
                           args={args}
                           isReadonly={isReadonly}
                         />
-                      ) : toolName === "requestSuggestions" ? (
-                        <DocumentToolCall
-                          type="request-suggestions"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
                       ) : null}
                     </div>
                   );
@@ -199,12 +191,6 @@ const PurePreviewMessage = ({
                           result={result}
                           isReadonly={isReadonly}
                         />
-                      ) : toolName === "requestSuggestions" ? (
-                        <DocumentToolResult
-                          type="request-suggestions"
-                          result={result}
-                          isReadonly={isReadonly}
-                        />
                       ) : (
                         <pre>{JSON.stringify(result, null, 2)}</pre>
                       )}
@@ -217,9 +203,7 @@ const PurePreviewMessage = ({
             {!isReadonly && (
               <MessageActions
                 key={`action-${message.id}`}
-                chatId={chatId}
                 message={message}
-                vote={vote}
                 isLoading={isLoading}
               />
             )}
@@ -236,7 +220,6 @@ export const PreviewMessage = memo(
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     if (prevProps.message.id !== nextProps.message.id) return false;
     if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
-    if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;
   }

@@ -1142,20 +1142,21 @@ export const ImageIcon = ({ size = 16 }: { size?: number }) => {
   );
 };
 
-export const FullscreenIcon = ({ size = 16 }: { size?: number }) => (
+export const FullscreenIcon = ({ size = 18 }: { size?: number }) => (
   <svg
-    height={size}
-    strokeLinejoin="round"
-    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
     width={size}
-    style={{ color: "currentcolor" }}
+    height={size}
+    fill="none"
   >
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M1 5.25V6H2.5V5.25V2.5H5.25H6V1H5.25H2C1.44772 1 1 1.44772 1 2V5.25ZM5.25 14.9994H6V13.4994H5.25H2.5V10.7494V9.99939H1V10.7494V13.9994C1 14.5517 1.44772 14.9994 2 14.9994H5.25ZM15 10V10.75V14C15 14.5523 14.5523 15 14 15H10.75H10V13.5H10.75H13.5V10.75V10H15ZM10.75 1H10V2.5H10.75H13.5V5.25V6H15V5.25V2C15 1.44772 14.5523 1 14 1H10.75Z"
-      fill="currentColor"
-    ></path>
+      d="M15.5 21C16.8956 21 17.5933 21 18.1611 20.8278C19.4395 20.44 20.44 19.4395 20.8278 18.1611C21 17.5933 21 16.8956 21 15.5M21 8.5C21 7.10444 21 6.40666 20.8278 5.83886C20.44 4.56046 19.4395 3.56004 18.1611 3.17224C17.5933 3 16.8956 3 15.5 3M8.5 21C7.10444 21 6.40666 21 5.83886 20.8278C4.56046 20.44 3.56004 19.4395 3.17224 18.1611C3 17.5933 3 16.8956 3 15.5M3 8.5C3 7.10444 3 6.40666 3.17224 5.83886C3.56004 4.56046 4.56046 3.56004 5.83886 3.17224C6.40666 3 7.10444 3 8.5 3"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 

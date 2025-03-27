@@ -32,7 +32,7 @@ export const myProvider = isTestEnvironment
       },
     }):customProvider({
       languageModels: {
-        'chat-model': groq('deepseek-r1-distill-llama-70b"'),
+        'chat-model': google('gemini-2.0-flash'),
         'chat-model-reasoning': wrapLanguageModel({
           model: groq('deepseek-r1-distill-llama-70b'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),

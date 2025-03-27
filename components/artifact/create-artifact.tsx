@@ -1,4 +1,3 @@
-import { Suggestion } from '@/lib/db/schema';
 import { UseChatHelpers } from '@ai-sdk/react';
 import { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
 import { DataStreamDelta } from '@/components/chat/data-stream-handler';
@@ -39,7 +38,6 @@ interface ArtifactContent<M = unknown> {
   isCurrentVersion: boolean;
   currentVersionIndex: number;
   status: 'streaming' | 'idle';
-  suggestions: Array<Suggestion>;
   onSaveContent: (updatedContent: string, debounce: boolean) => void;
   isInline: boolean;
   getDocumentContentById: (index: number) => string;

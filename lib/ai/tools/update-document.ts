@@ -4,14 +4,10 @@ import { z } from 'zod';
 import { getDocumentById } from '@/actions/chat';
 import { documentHandlersByArtifactKind } from '@/lib/artifacts/server';
 
-
 interface UpdateDocumentProps {
   session: Session;
   dataStream: DataStreamWriter;
 }
-
-
-
 
 export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
   tool({

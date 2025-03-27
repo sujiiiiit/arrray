@@ -1,4 +1,3 @@
-import { Suggestion } from '@/lib/db/schema';
 import { UseChatHelpers } from '@ai-sdk/react';
 import { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
 import { DataStreamDelta } from '@/components/chat/data-stream-handler';
@@ -39,7 +38,6 @@ interface ArtifactContent<M = any> {
   isCurrentVersion: boolean;
   currentVersionIndex: number;
   status: 'streaming' | 'idle';
-  suggestions: Array<Suggestion>;
   onSaveContent: (updatedContent: string, debounce: boolean) => void;
   isInline: boolean;
   getDocumentContentById: (index: number) => string;
@@ -57,8 +55,6 @@ type ArtifactConfig<T extends string, M = any> = {
   kind: T;
   description: string;
   content: ComponentType<ArtifactContent<M>>;
-  actions: Array<ArtifactAction<M>>;
-  toolbar: ArtifactToolbarItem[];
   initialize?: (parameters: InitializeParameters<M>) => void;
   onStreamPart: (args: {
     setMetadata: Dispatch<SetStateAction<M>>;
@@ -71,8 +67,6 @@ export class Artifact<T extends string, M = any> {
   readonly kind: T;
   readonly description: string;
   readonly content: ComponentType<ArtifactContent<M>>;
-  readonly actions: Array<ArtifactAction<M>>;
-  readonly toolbar: ArtifactToolbarItem[];
   readonly initialize?: (parameters: InitializeParameters) => void;
   readonly onStreamPart: (args: {
     setMetadata: Dispatch<SetStateAction<M>>;
@@ -84,8 +78,6 @@ export class Artifact<T extends string, M = any> {
     this.kind = config.kind;
     this.description = config.description;
     this.content = config.content;
-    this.actions = config.actions || [];
-    this.toolbar = config.toolbar || [];
     this.initialize = config.initialize || (async () => ({}));
     this.onStreamPart = config.onStreamPart;
   }

@@ -9,12 +9,7 @@ import {
   useRef,
 } from "react";
 import { ArtifactKind, UIArtifact } from "@/components/artifact/artifact";
-import {
-  FileIcon,
-  FullscreenIcon,
-  // ImageIcon,
-  LoaderIcon,
-} from "@/components/icons";
+import { FileIcon, FullscreenIcon, LoaderIcon } from "@/components/icons";
 import { cn, fetcher } from "@/lib/utils";
 import { Document } from "@/lib/db/schema";
 import { InlineDocumentSkeleton } from "./document-skeleton";
@@ -37,16 +32,16 @@ export function DocumentPreview({
 }: DocumentPreviewProps) {
   const { artifact, setArtifact } = useArtifact();
 
-  const { data, isLoading: isDocumentsFetching } = useSWR<
-    { documents: Array<Document> }
-  >(result ? `/api/document?id=${result.id}` : null, fetcher);
-  
+  const { data, isLoading: isDocumentsFetching } = useSWR<{
+    documents: Array<Document>;
+  }>(result ? `/api/document?id=${result.id}` : null, fetcher);
+
   const documents = data?.documents;
   const previewDocument = useMemo(() => documents?.[0], [documents]);
-  const hitboxRef = useRef<HTMLDivElement>(null!)
+  const hitboxRef = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
-    console.log("Document data:", { data, loading: isDocumentsFetching });
+    console.log("Document data:", { data, isLoading: isDocumentsFetching });
   }, [data, isDocumentsFetching]);
 
   useEffect(() => {
@@ -88,7 +83,7 @@ export function DocumentPreview({
   }
 
   if (isDocumentsFetching) {
-    return <LoadingSkeleton/>;
+    return <LoadingSkeleton />;
   }
 
   const document: Document | null = previewDocument
@@ -189,7 +184,7 @@ const PureHitboxLayer = ({
       aria-hidden="true"
     >
       <div className="w-full p-4 flex justify-end items-center">
-        <div className="absolute right-[9px] top-[13px] p-2 hover:dark:bg-zinc-700 rounded-md hover:bg-zinc-100">
+        <div className="absolute text-color-secondary right-[10px] top-[13px] p-2 hover:dark:bg-zinc-700 rounded-md hover:bg-zinc-100">
           <FullscreenIcon />
         </div>
       </div>
@@ -211,7 +206,7 @@ const PureDocumentHeader = ({
   kind: ArtifactKind;
   isStreaming: boolean;
 }) => (
-  <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-start sm:items-center justify-between dark:bg-muted border-b-0 dark:border-zinc-700">
+  <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-start sm:items-center justify-between dark:bg-[#1e1e1e] bg-background border-b-0 dark:border-zinc-700">
     <div className="flex flex-row items-start sm:items-center gap-3">
       <div className="text-muted-foreground">
         {isStreaming ? (
@@ -222,7 +217,9 @@ const PureDocumentHeader = ({
           <FileIcon />
         )}
       </div>
-      <div className="-translate-y-1 sm:translate-y-0 font-medium truncate">{title}</div>
+      <div className="-translate-y-1 sm:translate-y-0 font-medium truncate">
+        {title}
+      </div>
     </div>
     <div className="w-8" />
   </div>
@@ -239,11 +236,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
   const { artifact } = useArtifact();
 
   const containerClassName = cn(
-    "h-[257px] overflow-y-scroll border rounded-b-2xl dark:bg-muted border-t-0 dark:border-zinc-700",
-    {
-      "p-4 sm:px-14 sm:py-16": document.kind === "text",
-      "p-0": document.kind === "code",
-    }
+    "h-[257px] overflow-hidden border rounded-b-2xl dark:bg-[#1e1e1e] bg-background border-t-0 dark:border-zinc-700"
   );
 
   const commonProps = {
@@ -252,7 +245,6 @@ const DocumentContent = ({ document }: { document: Document }) => {
     currentVersionIndex: 0,
     status: artifact.status,
     saveContent: () => {},
-    suggestions: [],
   };
 
   return (
@@ -260,7 +252,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
       {document.kind === "code" ? (
         <div className="flex flex-1 relative w-full">
           <div className="absolute inset-0">
-            <CodeEditor {...commonProps} onSaveContent={() => {}} />
+            <CodeEditor height="257px" {...commonProps} onSaveContent={() => {}} />
           </div>
         </div>
       ) : null}

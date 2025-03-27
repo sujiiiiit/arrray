@@ -1,110 +1,73 @@
 'use client';
 
-import { EditorView } from '@codemirror/view';
-import { EditorState, Transaction } from '@codemirror/state';
-import { python } from '@codemirror/lang-python';
-import { oneDark } from '@codemirror/theme-one-dark';
-import { basicSetup } from 'codemirror';
-import React, { memo, useEffect, useRef } from 'react';
-import { Suggestion } from '@/lib/db/schema';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import Editor, { OnMount } from '@monaco-editor/react';
+import { useTheme } from 'next-themes';
 
 type EditorProps = {
+  height: string;
   content: string;
   onSaveContent: (updatedContent: string, debounce: boolean) => void;
   status: 'streaming' | 'idle';
   isCurrentVersion: boolean;
   currentVersionIndex: number;
-  suggestions: Array<Suggestion>;
 };
 
-function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<EditorView | null>(null);
+function PureCodeEditor({ height,content, onSaveContent, status }: EditorProps) {
+  const editorRef = useRef<any>(null);
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
+  // Ensure we only render the editor on the client
   useEffect(() => {
-    if (containerRef.current && !editorRef.current) {
-      const startState = EditorState.create({
-        doc: content,
-        extensions: [basicSetup, python(), oneDark],
-      });
-
-      editorRef.current = new EditorView({
-        state: startState,
-        parent: containerRef.current,
-      });
-    }
-
-    return () => {
-      if (editorRef.current) {
-        editorRef.current.destroy();
-        editorRef.current = null;
-      }
-    };
-    // NOTE: we only want to run this effect once
-    // eslint-disable-next-line
+    setMounted(true);
   }, []);
 
+  const handleEditorMount: OnMount = (editor) => {
+    editorRef.current = editor;
+    // Listen for content changes and trigger onSaveContent callback
+    editor.onDidChangeModelContent(() => {
+      const newContent = editor.getValue();
+      onSaveContent(newContent, true);
+    });
+  };
+
+  // Synchronize external content updates with the editor
   useEffect(() => {
     if (editorRef.current) {
-      const updateListener = EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          const transaction = update.transactions.find(
-            (tr) => !tr.annotation(Transaction.remote),
-          );
-
-          if (transaction) {
-            const newContent = update.state.doc.toString();
-            onSaveContent(newContent, true);
-          }
-        }
-      });
-
-      const currentSelection = editorRef.current.state.selection;
-
-      const newState = EditorState.create({
-        doc: editorRef.current.state.doc,
-        extensions: [basicSetup, python(), oneDark, updateListener],
-        selection: currentSelection,
-      });
-
-      editorRef.current.setState(newState);
-    }
-  }, [onSaveContent]);
-
-  useEffect(() => {
-    if (editorRef.current && content) {
-      const currentContent = editorRef.current.state.doc.toString();
-
+      const currentContent = editorRef.current.getValue();
       if (status === 'streaming' || currentContent !== content) {
-        const transaction = editorRef.current.state.update({
-          changes: {
-            from: 0,
-            to: currentContent.length,
-            insert: content,
-          },
-          annotations: [Transaction.remote.of(true)],
-        });
-
-        editorRef.current.dispatch(transaction);
+        editorRef.current.setValue(content);
       }
     }
   }, [content, status]);
 
+  if (!mounted) return null;
+
+  // Determine the current theme from next-themes
+  const currentTheme = theme === 'system' ? resolvedTheme : theme;
+  // Map next-themes value to Monaco Editor theme
+  const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'light';
+
   return (
-    <div
-      className="relative not-prose w-full pb-[calc(80dvh)] text-sm"
-      ref={containerRef}
+    <Editor
+      height={height}
+      defaultLanguage="javascript"
+      theme={monacoTheme}
+      defaultValue={content}
+      onMount={handleEditorMount}
+      options={{
+        automaticLayout: true,
+        minimap: { enabled: false },
+      }}
     />
   );
 }
 
 function areEqual(prevProps: EditorProps, nextProps: EditorProps) {
-  if (prevProps.suggestions !== nextProps.suggestions) return false;
-  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex)
-    return false;
+  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex) return false;
   if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) return false;
-  if (prevProps.status === 'streaming' && nextProps.status === 'streaming')
-    return false;
+  if (prevProps.status === 'streaming' && nextProps.status === 'streaming') return false;
   if (prevProps.content !== nextProps.content) return false;
 
   return true;

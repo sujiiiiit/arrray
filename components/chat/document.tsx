@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useArtifact } from '@/hooks/use-artifact';
 
 const getActionText = (
-  type: 'create' | 'update' | 'request-suggestions',
+  type: 'create' | 'update',
   tense: 'present' | 'past',
 ) => {
   switch (type) {
@@ -14,17 +14,13 @@ const getActionText = (
       return tense === 'present' ? 'Creating' : 'Created';
     case 'update':
       return tense === 'present' ? 'Updating' : 'Updated';
-    case 'request-suggestions':
-      return tense === 'present'
-        ? 'Adding suggestions'
-        : 'Added suggestions to';
     default:
       return null;
   }
 };
 
 interface DocumentToolResultProps {
-  type: 'create' | 'update' | 'request-suggestions';
+  type: 'create' | 'update';
   result: { id: string; title: string; kind: ArtifactKind };
   isReadonly: boolean;
 }
@@ -73,9 +69,7 @@ function PureDocumentToolResult({
           <FileIcon />
         ) : type === 'update' ? (
           <PencilEditIcon />
-        ) : type === 'request-suggestions' ? (
-          <MessageIcon />
-        ) : null}
+        ): null}
       </div>
       <div className="text-left">
         {`${getActionText(type, 'past')} "${result.title}"`}
@@ -87,7 +81,7 @@ function PureDocumentToolResult({
 export const DocumentToolResult = memo(PureDocumentToolResult, () => true);
 
 interface DocumentToolCallProps {
-  type: 'create' | 'update' | 'request-suggestions';
+  type: 'create' | 'update';
   args: { title: string };
   isReadonly: boolean;
 }
@@ -133,9 +127,7 @@ function PureDocumentToolCall({
             <FileIcon />
           ) : type === 'update' ? (
             <PencilEditIcon />
-          ) : type === 'request-suggestions' ? (
-            <MessageIcon />
-          ) : null}
+          ): null}
         </div>
 
         <div className="text-left">

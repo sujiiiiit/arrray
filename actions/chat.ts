@@ -3,14 +3,12 @@
 import { getUser } from "@/lib/auth";
 import { createSupabaseClient } from "@/supabase/server-client";
 import { Chat,ArtifactKind } from "@/types";
-import { Suggestion,DBMessage } from "@/lib/db/schema";
+import { DBMessage } from "@/lib/db/schema";
 
 const TABLES = {
   CHATS: "Chat",
-  VOTES: "Vote",
   MESSAGES: "Message",
   DOCUMENTS: "Document",
-  SUGGESTIONS: "Suggestion",
 };
 
 export async function performSupabaseAction(action: () => Promise<any>, errorMessage: string) {
@@ -81,8 +79,6 @@ export async function deleteChatById({ id }: { id: string }) {
     async () => {
       const supabase = await createSupabaseClient();
 
-      // Delete related votes and messages
-      await supabase.from(TABLES.VOTES).delete().eq("chatId", id);
       await supabase.from(TABLES.MESSAGES).delete().eq("chatId", id);
 
       return await supabase.from(TABLES.CHATS).delete().eq("id", id).select();
@@ -131,40 +127,7 @@ export async function getMessagesByChatId({ id }: { id: string }) {
   );
 }
 
-export async function voteMessage({ chatId, messageId, type }: { chatId: string; messageId: string; type: "up" | "down"; }) {
-  return await performSupabaseAction(
-    async () => {
-      const supabase = await createSupabaseClient();
-      
-      const { data: existingVote, error: selectError } = await supabase
-        .from(TABLES.VOTES)
-        .select()
-        .eq("messageId", messageId)
-        .single();
 
-      if (existingVote) {
-        return await supabase
-          .from(TABLES.VOTES)
-          .update({ isUpvoted: type === "up" })
-          .eq("messageId", messageId)
-          .eq("chatId", chatId);
-      } else {
-        return await supabase.from(TABLES.VOTES).insert([{ chatId, messageId, isUpvoted: type === "up" }]);
-      }
-    },
-    "Failed to vote message"
-  );
-}
-
-export async function getVotesByChatId({ id }: { id: string }) {
-  return await performSupabaseAction(
-    async () => {
-      const supabase = await createSupabaseClient();
-      return await supabase.from(TABLES.VOTES).select().eq("chatId", id);
-    },
-    "Failed to get votes"
-  );
-}
 
 export async function getDocumentsById({ id }: { id: string }) {
   return await performSupabaseAction(
@@ -186,35 +149,8 @@ export async function getDocumentById({ id }: { id: string }) {
   );
 }
 
-export async function deleteDocumentsByIdAfterTimestamp({ id, timestamp }: { id: string; timestamp: Date; }) {
-  return await performSupabaseAction(
-    async () => {
-      const supabase = await createSupabaseClient();
-      return await supabase.from(TABLES.SUGGESTIONS).delete().eq("id", id).gt("createdAt", timestamp);
-    },
-    "Failed to delete documents"
-  );
-}
 
-export async function saveSuggestions({ suggestions }: { suggestions: Array<Suggestion>; }) {
-  return await performSupabaseAction(
-    async () => {
-      const supabase = await createSupabaseClient();
-      return await supabase.from(TABLES.SUGGESTIONS).insert(suggestions);
-    },
-    "Failed to save suggestions"
-  );
-}
 
-export async function getSuggestionsByDocumentId({ documentId }: { documentId: string; }) {
-  return await performSupabaseAction(
-    async () => {
-      const supabase = await createSupabaseClient();
-      return await supabase.from(TABLES.SUGGESTIONS).select().eq("documentId", documentId);
-    },
-    "Failed to get suggestions"
-  );
-}
 
 export async function getMessageById({ id }: { id: string }) {
   return await performSupabaseAction(
@@ -239,7 +175,6 @@ export async function deleteMessagesByChatIdAfterTimestamp({ chatId, timestamp }
       if (messagesToDelete && messagesToDelete.length > 0) {
         const messageIds = messagesToDelete.map((msg) => msg.id);
 
-        await supabase.from(TABLES.VOTES).delete().eq("chatId", chatId).in("messageId", messageIds);
         return await supabase.from(TABLES.MESSAGES).delete().eq("chatId", chatId).in("id", messageIds).select();
       }
 

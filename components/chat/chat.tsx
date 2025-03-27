@@ -10,7 +10,6 @@ import type { Attachment, UIMessage } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import type { Vote } from "@/lib/db/schema";
 import { fetcher, generateUUID } from "@/lib/utils";
 import { Artifact } from "@/components/artifact/artifact";
 // import { MultimodalInput } from "@/components/artifact/multimodal-input";
@@ -59,10 +58,7 @@ const App = ({
     },
   });
 
-  const { data: votes } = useSWR<Array<Vote>>(
-    messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher
-  );
+
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
@@ -84,7 +80,6 @@ const App = ({
         <Messages
           chatId={id}
           status={status}
-          votes={votes}
           messages={messages}
           setMessages={setMessages}
           reload={reload}
@@ -126,7 +121,6 @@ const App = ({
         messages={messages}
         setMessages={setMessages}
         reload={reload}
-        votes={votes}
         isReadonly={isReadonly}
       />
     </>

@@ -11,10 +11,9 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
-import type { Document, Vote } from "@/lib/db/schema";
+import type { Document } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
 import  MultimodalInput from "@/components/chat/messageContainer";
-import { Toolbar } from "./toolbar";
 import { VersionFooter } from "@/components/artifact/version-footer";
 import { ArtifactActions } from "./artifact-actions";
 import { ArtifactCloseButton } from "./artifact-close-button";
@@ -56,7 +55,6 @@ function PureArtifact({
   messages,
   setMessages,
   reload,
-  votes,
   isReadonly,
 }: {
   chatId: string;
@@ -68,7 +66,6 @@ function PureArtifact({
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<UIMessage>;
   setMessages: UseChatHelpers["setMessages"];
-  votes: Array<Vote> | undefined;
   append: UseChatHelpers["append"];
   handleSubmit: UseChatHelpers["handleSubmit"];
   reload: UseChatHelpers["reload"];
@@ -303,11 +300,10 @@ function PureArtifact({
                 )}
               </AnimatePresence>
 
-              <div className="flex flex-col h-full justify-between items-center gap-4">
+              <div className="flex flex-col h-full justify-between items-center">
                 <ArtifactMessages
                   chatId={chatId}
                   status={status}
-                  votes={votes}
                   messages={messages}
                   setMessages={setMessages}
                   reload={reload}
@@ -336,7 +332,7 @@ function PureArtifact({
           )}
 
           <motion.div
-            className="fixed dark:bg-muted bg-background h-dvh flex flex-col overflow-y-scroll md:border-l dark:border-zinc-700 border-zinc-200"
+            className="fixed dark:bg-[#1e1e1e] bg-background h-dvh flex flex-col overflow-y-scroll md:border-l dark:border-zinc-700 border-zinc-200"
             initial={
               isMobile
                 ? {
@@ -402,7 +398,7 @@ function PureArtifact({
               },
             }}
           >
-            <div className="p-2 flex flex-row justify-between items-start">
+            <div className="p-2 flex flex-row justify-between items-start h-16">
               <div className="flex flex-row gap-4 items-start">
                 <ArtifactCloseButton />
 
@@ -424,23 +420,16 @@ function PureArtifact({
                       )}`}
                     </div>
                   ) : (
-                    <div className="w-32 h-3 mt-2 bg-muted-foreground/20 rounded-md animate-pulse" />
+                    <div className="w-32 h-3 mt-2 dark:bg-[#1e1e1e] bg-background rounded-md animate-pulse" />
                   )}
                 </div>
               </div>
 
               <ArtifactActions
-                artifact={artifact}
-                currentVersionIndex={currentVersionIndex}
-                handleVersionChange={handleVersionChange}
-                isCurrentVersion={isCurrentVersion}
-                mode={mode}
-                metadata={metadata}
-                setMetadata={setMetadata}
               />
             </div>
 
-            <div className="dark:bg-muted bg-background h-full overflow-y-scroll !max-w-full items-center">
+            <div className="dark:bg-[#1e1e1e] bg-background h-full overflow-y-scroll !max-w-full items-center">
               <artifactDefinition.content
                 title={artifact.title}
                 content={
@@ -451,7 +440,6 @@ function PureArtifact({
                 mode={mode}
                 status={artifact.status}
                 currentVersionIndex={currentVersionIndex}
-                suggestions={[]}
                 onSaveContent={saveContent}
                 isInline={false}
                 isCurrentVersion={isCurrentVersion}
@@ -461,19 +449,7 @@ function PureArtifact({
                 setMetadata={setMetadata}
               />
 
-              <AnimatePresence>
-                {isCurrentVersion && (
-                  <Toolbar
-                    isToolbarVisible={isToolbarVisible}
-                    setIsToolbarVisible={setIsToolbarVisible}
-                    append={append}
-                    status={status}
-                    stop={stop}
-                    setMessages={setMessages}
-                    artifactKind={artifact.kind}
-                  />
-                )}
-              </AnimatePresence>
+             
             </div>
 
             <AnimatePresence>
@@ -494,7 +470,6 @@ function PureArtifact({
 
 export const Artifact = memo(PureArtifact, (prevProps, nextProps) => {
   if (prevProps.status !== nextProps.status) return false;
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
   if (prevProps.input !== nextProps.input) return false;
   if (!equal(prevProps.messages, nextProps.messages.length)) return false;
 
